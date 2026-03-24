@@ -84,7 +84,7 @@ android {
             firebaseAppDistribution {
                 artifactType = "APK"
                 serviceCredentialsFile = "composeApp/firebase-service-account.json"
-                testers = ""
+                testers = System.getenv("FIREBASE_TESTERS") ?: ""
             }
         }
     }

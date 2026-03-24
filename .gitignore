@@ -70,6 +70,8 @@ app/build/
 */build/kotlin/
 
 # Firebase credentials (security!)
+app/google-services.json
+composeApp/google-services.json
 app/firebase-service-account.json
 composeApp/firebase-service-account.json
 */firebase-admin.json
