@@ -25,6 +25,19 @@ object LabConverter {
         return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
     }
 
+    /**
+     * Converts CIELAB [L*, a*, b*] to cylindrical LCH [L*, C*, H_degrees].
+     * C* = chroma = sqrt(a*² + b*²).
+     * H = hue angle in degrees, normalized to [0, 360).
+     */
+    fun labToLch(lab: FloatArray): FloatArray {
+        val a = lab[1]; val b = lab[2]
+        val c = kotlin.math.sqrt((a * a + b * b).toDouble()).toFloat()
+        var h = Math.toDegrees(kotlin.math.atan2(b.toDouble(), a.toDouble())).toFloat()
+        if (h < 0f) h += 360f
+        return floatArrayOf(lab[0], c, h)
+    }
+
     // --- sRGB gamma ---
 
     private fun sRgbToLinear(c: Float): Float =

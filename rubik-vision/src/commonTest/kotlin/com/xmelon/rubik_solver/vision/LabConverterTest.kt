@@ -65,4 +65,35 @@ class LabConverterTest {
         assertIntWithin((back shr 8)  and 0xFF, 2, 150)
         assertIntWithin( back         and 0xFF, 2, 80)
     }
+
+    @Test fun `labToLch white gives near-zero chroma`() {
+        val lab = floatArrayOf(85f, -2f, 5f)
+        val lch = LabConverter.labToLch(lab)
+        assertFloatWithin(lch[0], 0.001f, 85f)
+        val chroma = lch[1]
+        assertTrue(chroma < 10f)
+    }
+
+    @Test fun `labToLch red gives H near 33 degrees and positive C`() {
+        val lab = floatArrayOf(40f, 56f, 36f)
+        val lch = LabConverter.labToLch(lab)
+        assertFloatWithin(lch[0], 0.001f, 40f)
+        val c = lch[1]
+        assertTrue(c > 60f)
+        assertFloatWithin(lch[2], 1.5f, 32.7f)
+    }
+
+    @Test fun `labToLch blue gives H near 288 degrees`() {
+        val lab = floatArrayOf(26f, 16f, -50f)
+        val lch = LabConverter.labToLch(lab)
+        assertFloatWithin(lch[2], 2f, 288f)
+    }
+
+    @Test fun `labToLch H is always in 0-360`() {
+        val lab = floatArrayOf(50f, 10f, -30f)
+        val lch = LabConverter.labToLch(lab)
+        val h = lch[2]
+        assertTrue(h >= 0f)
+        assertTrue(h < 360f)
+    }
 }
