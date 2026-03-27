@@ -71,7 +71,7 @@ class LabConverterTest {
         val lch = LabConverter.labToLch(lab)
         assertFloatWithin(lch[0], 0.001f, 85f)
         val chroma = lch[1]
-        assertTrue(chroma < 10f)
+        assertTrue(chroma < 10f, "Expected chroma < 10, got $chroma")
     }
 
     @Test fun `labToLch red gives H near 33 degrees and positive C`() {
@@ -79,7 +79,7 @@ class LabConverterTest {
         val lch = LabConverter.labToLch(lab)
         assertFloatWithin(lch[0], 0.001f, 40f)
         val c = lch[1]
-        assertTrue(c > 60f)
+        assertTrue(c > 60f, "Expected C > 60, got $c")
         assertFloatWithin(lch[2], 1.5f, 32.7f)
     }
 

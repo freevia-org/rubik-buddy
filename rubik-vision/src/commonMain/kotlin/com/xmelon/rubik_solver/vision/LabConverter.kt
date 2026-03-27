@@ -33,7 +33,7 @@ object LabConverter {
     fun labToLch(lab: FloatArray): FloatArray {
         val a = lab[1]; val b = lab[2]
         val c = kotlin.math.sqrt((a * a + b * b).toDouble()).toFloat()
-        var h = Math.toDegrees(kotlin.math.atan2(b.toDouble(), a.toDouble())).toFloat()
+        var h = (kotlin.math.atan2(b.toDouble(), a.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
         if (h < 0f) h += 360f
         return floatArrayOf(lab[0], c, h)
     }
