@@ -35,8 +35,8 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
     // WHITE is classified by chroma only; no (a,b) prior needed.
     private val PRIORS_AB: Map<CubeColor, FloatArray> = mapOf(
         CubeColor.YELLOW to floatArrayOf(  8f,  64f),
-        CubeColor.RED    to floatArrayOf( 56f,  36f),
-        CubeColor.ORANGE to floatArrayOf( 50f,  55f),
+        CubeColor.RED    to floatArrayOf( 54f,  34f),
+        CubeColor.ORANGE to floatArrayOf( 55f,  50f),
         CubeColor.BLUE   to floatArrayOf( 16f, -50f),
         CubeColor.GREEN  to floatArrayOf(-42f,  32f)
     )
