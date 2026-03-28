@@ -171,7 +171,7 @@ class AppViewModel : ViewModel() {
             }
         else liveColors
         val labs = analyzer.detectedLabs.value
-        if (labs.size == 9) {
+        if (labs.size == 9 && correctedColors.size == 9) {
             colorSession.commitFace(face, correctedColors.toTypedArray(), labs)
             log(colorSession.debugLog())
         }
