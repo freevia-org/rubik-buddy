@@ -163,4 +163,86 @@ class ColorSessionTest {
         val (color, _) = session.classify(floatArrayOf(50f, 56f, 36f))
         assertEquals(CubeColor.RED, color)
     }
+
+    // ---- debugLog ----
+
+    @Test fun `debugLog contains face name and tile data after commitFace`() {
+        val session = ColorSession(clock = { 3_661_000L })  // 01:01:01
+        val colors = Array(9) { if (it == 4) CubeColor.RED else CubeColor.ORANGE }
+        val labs   = Array(9) { floatArrayOf(50f, 53f, 45f) }
+        session.commitFace(Face.F, colors, labs)
+
+        val log = session.debugLog()
+        assertTrue(log.contains("Face F"), "Expected 'Face F' in log")
+        assertTrue(log.contains("tile 4*"), "Expected 'tile 4*' for center")
+        assertTrue(log.contains("RED"), "Expected RED color name")
+        assertTrue(log.contains("CURRENT MODEL"), "Expected model section")
+    }
+
+    @Test fun `debugLog marks rescan correctly`() {
+        val session = ColorSession(clock = { 0L })
+        val labs = Array(9) { floatArrayOf(50f, 56f, 36f) }
+        session.commitFace(Face.F, Array(9) { CubeColor.RED }, labs)
+        session.commitFace(Face.F, Array(9) { CubeColor.RED }, labs)  // rescan
+
+        val log = session.debugLog()
+        assertTrue(log.contains("RESCAN"), "Expected RESCAN marker for second commit")
+    }
+
+    @Test fun `debugLog shows prior for unscanned colors`() {
+        val session = ColorSession()
+        // Commit only RED; BLUE should show as prior
+        session.commitFace(Face.F, Array(9) { CubeColor.RED },
+            Array(9) { floatArrayOf(50f, 56f, 36f) })
+
+        val log = session.debugLog()
+        assertTrue(log.contains("prior"), "Expected 'prior' for unscanned colors")
+    }
+
+    // ---- modelSummaryStr ----
+
+    @Test fun `modelSummaryStr contains color names`() {
+        val session = ColorSession()
+        session.commitFace(Face.F, Array(9) { CubeColor.RED },
+            Array(9) { floatArrayOf(50f, 56f, 36f) })
+
+        val summary = session.modelSummaryStr()
+        assertTrue(summary.contains("RED"), "Expected RED in summary")
+    }
+
+    // ---- cycle ----
+
+    @Test fun `cycle returns a different color from current`() {
+        val session = ColorSession()
+        val lab = floatArrayOf(40f, 56f, 36f)  // RED territory
+        val next = session.cycle(lab, CubeColor.RED)
+        assertTrue(next != CubeColor.RED, "cycle should return a different color")
+    }
+
+    @Test fun `cycle round-trips through all 6 colors`() {
+        val session = ColorSession()
+        val lab = floatArrayOf(40f, 56f, 36f)
+        val seen = mutableSetOf<CubeColor>()
+        var current = session.classify(lab).first
+        repeat(6) {
+            seen.add(current)
+            current = session.cycle(lab, current)
+        }
+        assertEquals(6, seen.size, "Expected all 6 colors visited")
+    }
+
+    // ---- rankFor ----
+
+    @Test fun `rankFor returns 1 for best-matching color`() {
+        val session = ColorSession()
+        val lab = floatArrayOf(40f, 56f, 36f)  // RED prior
+        assertEquals(1, session.rankFor(lab, CubeColor.RED))
+    }
+
+    @Test fun `rankFor returns value in 1-6 for any color`() {
+        val session = ColorSession()
+        val lab = floatArrayOf(40f, 56f, 36f)
+        val rank = session.rankFor(lab, CubeColor.BLUE)
+        assertTrue(rank in 1..6, "rank $rank not in 1..6")
+    }
 }

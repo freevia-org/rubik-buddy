@@ -139,6 +139,93 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
         rebuild()  // derives empty colorModels from empty measurements
     }
 
+    /**
+     * Returns a one-line model state string suitable for per-frame debug logging.
+     * Format: "RED[a=56 b=36 n=9] ORANGE[prior] ..."
+     */
+    fun modelSummaryStr(): String = buildString {
+        for (color in CubeColor.entries) {
+            if (color == CubeColor.WHITE) continue
+            val m = colorModels[color]
+            if (m != null) append("${color.name}[a=%.0f b=%.0f n=${m.sampleCount}] ".format(m.meanA, m.meanB))
+            else append("${color.name}[prior] ")
+        }
+    }
+
+    /**
+     * Full session history dump: one [ScanEvent] per face confirmation (including rescans),
+     * followed by the current model state. Append to logcat at face-confirm time.
+     */
+    fun debugLog(): String = buildString {
+        appendLine("=== COLOR SESSION DEBUG LOG ===")
+        for (event in scanHistory) {
+            val ts   = event.timestamp
+            val hh   = (ts / 3_600_000L) % 24
+            val mm   = (ts / 60_000L)    % 60
+            val ss   = (ts / 1_000L)     % 60
+            val tag  = if (event.isRescan) "RESCAN" else "first scan"
+            appendLine("[Face ${event.face.name} | %02d:%02d:%02d | $tag]".format(hh, mm, ss))
+            for (tile in event.tiles) {
+                val star   = if (tile.isCenter) "*" else " "
+                val lab    = tile.lab
+                val lch    = tile.lch
+                val scores = tile.scoresBeforeThisFace.entries
+                    .sortedBy { it.value }
+                    .joinToString(" ") { "${it.key.label}=%.1f".format(it.value) }
+                appendLine("  tile ${tile.tileIndex}$star ${tile.assignedColor.name.padEnd(6)} " +
+                    "L=%.0f a=%.0f b=%.0f  C=%.0f H=%.0f°  w=%.1f  before:[$scores]"
+                        .format(lab[0], lab[1], lab[2], lch[1], lch[2], tile.weight))
+            }
+        }
+        appendLine()
+        appendLine("=== CURRENT MODEL ===")
+        for (color in CubeColor.entries) {
+            if (color == CubeColor.WHITE) {
+                appendLine("  ${color.name.padEnd(6)} chroma < $WHITE_CHROMA_THRESHOLD (no (a,b) model)")
+                continue
+            }
+            val m = colorModels[color]
+            if (m == null) {
+                val p = PRIORS_AB[color]!!
+                appendLine("  ${color.name.padEnd(6)} prior a=%.1f b=%.1f (no session data)"
+                    .format(p[0], p[1]))
+            } else {
+                appendLine("  ${color.name.padEnd(6)} mean_a=%.1f mean_b=%.1f  (n=${m.sampleCount} w=%.1f)"
+                    .format(m.meanA, m.meanB, m.totalWeight))
+            }
+        }
+    }
+
+    /**
+     * Returns the next color in the (a,b) ranking for [lab], cycling past [currentColor].
+     * Used for manual tile-correction: each tap advances to the next best-ranked color.
+     */
+    fun cycle(lab: FloatArray, currentColor: CubeColor): CubeColor {
+        val ranked = allRanked(lab)
+        val idx = ranked.indexOf(currentColor)
+        return ranked[(idx + 1) % ranked.size]
+    }
+
+    /**
+     * Returns the 1-based rank of [color] for [lab].
+     * 1 = best match, 6 = worst. Used for debug logging.
+     */
+    fun rankFor(lab: FloatArray, color: CubeColor): Int = allRanked(lab).indexOf(color) + 1
+
+    /** All 6 colors sorted by (a,b) score ascending (best first). WHITE always sorted by chroma. */
+    private fun allRanked(lab: FloatArray): List<CubeColor> {
+        val a = lab[1]; val b = lab[2]
+        val chroma = sqrt((a * a + b * b).toDouble()).toFloat()
+        val chromatic = CHROMATIC_COLORS.sortedBy { color ->
+            val mean = abMean(color)
+            val da = a - mean[0]; val db = b - mean[1]
+            sqrt((da * da + db * db).toDouble()).toFloat()
+        }
+        // Place WHITE at the front if low-chroma, else at the back
+        return if (chroma < WHITE_CHROMA_THRESHOLD) listOf(CubeColor.WHITE) + chromatic
+        else chromatic + listOf(CubeColor.WHITE)
+    }
+
     /** For testing only: returns (mean_a, mean_b) of the session model for [color], or null if using prior. */
     internal fun modelMeanFor(color: CubeColor): Pair<Float, Float>? {
         val m = colorModels[color] ?: return null
