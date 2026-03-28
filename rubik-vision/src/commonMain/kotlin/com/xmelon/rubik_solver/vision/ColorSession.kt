@@ -135,8 +135,14 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
     /** Clears all measurements, models, and scan history. */
     fun reset() {
         measurements.clear()
-        colorModels.clear()
         scanHistory.clear()
+        rebuild()  // derives empty colorModels from empty measurements
+    }
+
+    /** For testing only: returns (mean_a, mean_b) of the session model for [color], or null if using prior. */
+    internal fun modelMeanFor(color: CubeColor): Pair<Float, Float>? {
+        val m = colorModels[color] ?: return null
+        return m.meanA to m.meanB
     }
 
     // =========================================================================

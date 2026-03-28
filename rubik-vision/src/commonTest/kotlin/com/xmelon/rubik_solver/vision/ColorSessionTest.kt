@@ -104,12 +104,15 @@ class ColorSessionTest {
             if (i == 4) floatArrayOf(50f, 49f, 54f) else floatArrayOf(50f, 56f, 36f)
         }
         session.commitFace(Face.F, colors, labs)
-        // Expected mean_a = (8*56*1 + 1*49*4) / (8*1 + 1*4) = (448+196)/12 = 53.67
-        // Expected mean_b = (8*36*1 + 1*54*4) / 12 = (288+216)/12 = 42.0
-        val (c1, _) = session.classify(floatArrayOf(50f, 53.67f, 42.0f))
-        val (c2, _) = session.classify(floatArrayOf(50f, 56f, 36f))
-        assertEquals(CubeColor.RED, c1)
-        assertEquals(CubeColor.RED, c2)
+
+        // weight=4 center: mean_a = (8×56×1 + 49×4)/12 = (448+196)/12 = 53.67
+        //                  mean_b = (8×36×1 + 54×4)/12 = (288+216)/12 = 42.0
+        // weight=1 center (unweighted): mean_a = (8×56 + 49)/9 = 55.22,  mean_b = (8×36+54)/9 = 38.0
+        val (meanA, meanB) = session.modelMeanFor(CubeColor.RED)!!
+        assertTrue(kotlin.math.abs(meanA - 53.67f) < 0.5f,
+            "Expected mean_a ≈ 53.67 (weight-4 center), got $meanA")
+        assertTrue(kotlin.math.abs(meanB - 42.0f) < 0.5f,
+            "Expected mean_b ≈ 42.0 (weight-4 center), got $meanB")
     }
 
     @Test fun `commitFace rescan replaces previous measurements`() {
