@@ -18,13 +18,13 @@ import java.util.concurrent.atomic.AtomicReference
  * Pipeline:
  *   1. Extract per-tile LAB median (2×2-stride pixel sampling).
  *   2. Temporal median smoothing (ring buffer of 8 LAB values per tile).
- *   3. Classify each tile using ColorDetector (Bayesian Gaussian in CIELAB).
+ *   3. Classify each tile using ColorSession (Bayesian Gaussian in CIELAB).
  *   4. Detect center stability via confidence gate + consecutive frame count.
  *
  * No white-balance step. Set [previewWidth] / [previewHeight] to the pixel
  * dimensions of the PreviewView.
  */
-class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
+class CubeFrameAnalyzer(val colorSession: ColorSession) : ImageAnalysis.Analyzer, FrameAnalyzer {
 
     companion object {
         private const val TAG = "CubeFrameAnalyzer"
@@ -39,9 +39,6 @@ class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
         // colour blending with adjacent tiles or the cube frame.
         private const val TILE_INSET_FRACTION = 0.15f
     }
-
-    /** Per-session color detector. Owned here so each scan session gets isolated state. */
-    val colorDetector = ColorDetector()
 
     /** Pixel size of the PreviewView — set from the View's onLayoutChange. */
     @Volatile var previewWidth: Int = 0
@@ -66,6 +63,10 @@ class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
     /** Per-tile confidence in [0,1]. < 0.15 = uncertain. */
     private val _confidence = MutableStateFlow<FloatArray>(FloatArray(0))
     val confidence = _confidence.asStateFlow()
+
+    /** Raw smoothed LAB values per tile from the last analyzed frame. */
+    private val _detectedLabs = MutableStateFlow(Array(9) { FloatArray(3) })
+    val detectedLabs = _detectedLabs.asStateFlow()
 
     @Volatile var debugMode: Boolean = false
     private val _debugBitmap = MutableStateFlow<Bitmap?>(null)
@@ -202,7 +203,7 @@ class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
         // 3. Classify + build output arrays (reuse pre-allocated frameColors/frameConfidences/frameRgbs)
         frameColors.clear()
         for (i in 0..8) {
-            val (color, conf) = colorDetector.classify(smoothedLab[i])
+            val (color, conf) = colorSession.classify(smoothedLab[i])
             frameColors.add(color)
             frameConfidences[i] = conf
             frameRgbs[i] = LabConverter.labToSRgb(smoothedLab[i])
@@ -215,7 +216,7 @@ class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
         // consistently ranks #1 as the expected color IS that color, regardless of the raw NLL.
         val expected = expectedCenterColor
         val centerMatch = expected != null
-                && colorDetector.classify(smoothedLab[4]).first == expected
+                && colorSession.classify(smoothedLab[4]).first == expected
         val newCount = if (centerMatch)
             consecutiveCenterInRange.updateAndGet { minOf(it + 1, CENTER_STABLE_FRAMES) }
         else {
@@ -232,6 +233,7 @@ class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
         // Compose sees updates and recomputes overlay colors with fresh data.
         _detectedWbRgbs.value = frameRgbs.copyOf()
         _confidence.value = frameConfidences.copyOf()
+        _detectedLabs.value = Array(9) { smoothedLab[it].copyOf() }
 
         // 6. Stability-transition events + SCAN_FRAME throttle
         if (nowStable && !wasStable) {
@@ -249,7 +251,7 @@ class CubeFrameAnalyzer : ImageAnalysis.Analyzer, FrameAnalyzer {
                     "center=[%.1f,%.1f,%.1f] color=${frameColors[4].name} conf=%.2f"
                         .format(cL[0], cL[1], cL[2], frameConfidences[4]))
             }
-            Log.i(TAG, "MODEL_DUMP ${colorDetector.modelDumpStr()}")
+            Log.i(TAG, "MODEL_SUMMARY ${colorSession.modelSummaryStr()}")
         } else if (!nowStable && wasStable) {
             wasStable = false
             Log.i(TAG, "CENTER_LOST face=${expected?.name}")
