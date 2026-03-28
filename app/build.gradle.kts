@@ -52,18 +52,6 @@ android {
     }
 }
 
-tasks.withType<com.android.build.gradle.tasks.PackageApplication>().configureEach {
-    val isRelease = name.endsWith("Release")
-    val buildTypeName = if (isRelease) "release" else "debug"
-    doLast {
-        outputDirectory.get().asFile.listFiles { f -> f.name.endsWith(".apk") }
-            ?.forEach { apk ->
-                val target = File(apk.parent, "rubiksolver-${buildTypeName}.apk")
-                apk.renameTo(target)
-            }
-    }
-}
-
 dependencies {
     implementation(project(":composeApp"))
     implementation(project(":rubik-model"))

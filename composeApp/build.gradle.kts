@@ -1,8 +1,12 @@
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.appdistribution)
 }
 
 compose.resources {
@@ -11,10 +15,7 @@ compose.resources {
 }
 
 kotlin {
-    android {
-        namespace = "com.xmelon.rubik_solver"
-        compileSdk = 36
-        minSdk = 28
+    androidTarget {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         }
@@ -32,11 +33,11 @@ kotlin {
             implementation(project(":rubik-model"))
             implementation(project(":rubik-solver"))
             implementation(project(":rubik-vision"))
-            implementation("org.jetbrains.compose.runtime:runtime:1.10.3")
-            implementation("org.jetbrains.compose.foundation:foundation:1.10.3")
-            implementation("org.jetbrains.compose.material3:material3:1.9.0")
-            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
-            implementation("org.jetbrains.compose.components:components-resources:1.10.3")
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
+            implementation(compose.components.resources)
             implementation(libs.lifecycle.viewmodel.kmp)
             implementation(libs.kotlinx.coroutines.core)
         }
@@ -51,5 +52,51 @@ kotlin {
             implementation(libs.camerax.lifecycle)
             implementation(libs.camerax.view)
         }
+    }
+}
+
+android {
+    namespace = "com.xmelon.rubik_solver"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "com.xmelon.rubik_solver"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = providers.exec {
+            commandLine("git", "rev-list", "--count", "HEAD")
+        }.standardOutput.asText.get().trim().toInt()
+        versionName = "0.1.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            firebaseAppDistribution {
+                artifactType = "APK"
+                serviceCredentialsFile = "composeApp/firebase-service-account.json"
+            }
+        }
+        getByName("debug") {
+            firebaseAppDistribution {
+                artifactType = "APK"
+                serviceCredentialsFile = "composeApp/firebase-service-account.json"
+                testers = System.getenv("FIREBASE_TESTERS") ?: ""
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
 }

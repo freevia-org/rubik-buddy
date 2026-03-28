@@ -16,7 +16,7 @@
         android:theme="@style/Theme.RubicSolver">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.xmelon.rubik_solver.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.RubicSolver">
