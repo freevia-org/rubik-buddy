@@ -15,7 +15,7 @@ class CubeFrameAnalyzerTest {
 
     // ─── helpers ────────────────────────────────────────────────────────────
 
-    private val analyzer = CubeFrameAnalyzer()
+    private val analyzer = CubeFrameAnalyzer(ColorSession())
 
     /** Reflective accessor for the private labMedian method. */
     private fun invokeLabMedian(labs: List<FloatArray>, dest: FloatArray) {

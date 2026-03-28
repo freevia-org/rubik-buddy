@@ -17,6 +17,7 @@ import com.xmelon.rubik_solver.solver.SolveResult
 import com.xmelon.rubik_solver.ui.ProgressPhase
 import com.xmelon.rubik_solver.ui.buildEffectiveWbRgbs
 import com.xmelon.rubik_solver.ui.isFaceScanned
+import com.xmelon.rubik_solver.vision.ColorSession
 import com.xmelon.rubik_solver.vision.CubeFrameAnalyzer
 import com.xmelon.rubik_solver.vision.LabConverter
 import com.xmelon.rubik_solver.vision.ScanOrchestrator
@@ -40,7 +41,8 @@ private fun IntArray.toCubeStr(): String {
 }
 
 class AppViewModel : ViewModel() {
-    val analyzer = CubeFrameAnalyzer()
+    val colorSession = ColorSession(clock = System::currentTimeMillis)
+    val analyzer = CubeFrameAnalyzer(colorSession)
     val orchestrator = ScanOrchestrator()
     var currentScreen by mutableStateOf(Screen.HOME)
 
@@ -143,12 +145,16 @@ class AppViewModel : ViewModel() {
 
     // -- Actions --
 
-    fun saveColorCheckpoint() = analyzer.colorDetector.saveCheckpoint()
-    fun restoreColorCheckpoint() = analyzer.colorDetector.restoreCheckpoint()
     fun resetAnalyzerBuffers() = analyzer.resetTemporalBuffers()
-    fun resetColorCalibration() = analyzer.colorDetector.resetCalibration()
-    fun colorCycle(wb: Int, current: CubeColor): CubeColor = analyzer.colorDetector.colorCycle(wb, current)
-    fun rankFor(wb: Int, color: CubeColor): Int = analyzer.colorDetector.rankFor(wb, color)
+    /** No-op: ColorSession is commit-only; checkpoints are no longer needed. */
+    fun saveColorCheckpoint() = Unit
+    /** Reverts the given face's committed data from ColorSession. */
+    fun restoreColorCheckpoint(face: Face) = colorSession.revertFace(face)
+    fun resetColorCalibration() = colorSession.reset()
+    fun colorCycle(wb: Int, current: CubeColor): CubeColor =
+        colorSession.cycle(LabConverter.sRgbToLab(wb), current)
+    fun rankFor(wb: Int, color: CubeColor): Int =
+        colorSession.rankFor(LabConverter.sRgbToLab(wb), color)
     fun toggleDebugMode() { debugMode = !debugMode; analyzer.debugMode = debugMode }
 
     fun confirmFace(liveColors: List<CubeColor>, liveRgbs: IntArray, liveWbRgbs: IntArray) {
@@ -165,30 +171,11 @@ class AppViewModel : ViewModel() {
                 list[4] = CubeColor.expectedCenter(face)
             }
         else liveColors
-        analyzer.colorDetector.saveCheckpoint()
-        // Only calibrate the center tile — it is 100% verified ground truth (color always
-        // known from the scan order). Non-center tiles have uncertain classifications and
-        // calibrating them contaminates models, especially RED/ORANGE which overlap on camera.
-        // weight=8 pushes n above MIN_SAMPLES so Welford variance kicks in and the model
-        // becomes a tight anchor around the actual camera LAB for this face's color.
-        val expectedCenter = CubeColor.expectedCenter(face)
-        if (liveWbRgbs.size >= 5) {
-            val centerLab = LabConverter.sRgbToLab(liveWbRgbs[4])
-            analyzer.colorDetector.calibrateTileLab(centerLab, expectedCenter, weight = 8f)
+        val labs = analyzer.detectedLabs.value
+        if (labs.size == 9) {
+            colorSession.commitFace(face, correctedColors.toTypedArray(), labs)
+            log(colorSession.debugLog())
         }
-        // Manually overridden tiles are also trustworthy — user has explicitly verified them.
-        if (liveWbRgbs.size >= 9) {
-            colorOverrides.forEach { (ci, color) ->
-                if (ci < liveWbRgbs.size && ci != 4) analyzer.colorDetector.calibrateTile(liveWbRgbs[ci], color)
-            }
-        }
-        log("CONFIRM cal_after=${analyzer.colorDetector.calibrationStr()}")
-        val labStr = (0 until minOf(liveWbRgbs.size, 9)).joinToString(",") { i ->
-            val lab = LabConverter.sRgbToLab(liveWbRgbs[i])
-            "[%.0f,%.0f,%.0f]".format(lab[0], lab[1], lab[2])
-        }
-        log("CONFIRM_LABS face=$face $labStr")
-        log("MODEL_DUMP ${analyzer.colorDetector.modelDumpStr()}")
         val effectiveWbRgbs = buildEffectiveWbRgbs(liveWbRgbs, correctedColors, colorOverrides, colorPalette)
         orchestrator.commitCurrentFace(correctedColors, effectiveWbRgbs)
         if (liveWbRgbs.size == 9) {
@@ -229,7 +216,7 @@ class AppViewModel : ViewModel() {
 
     fun restartScan() {
         orchestrator.reset()
-        analyzer.colorDetector.resetCalibration()
+        colorSession.reset()
         analyzer.resetTemporalBuffers()
         analyzer.expectedCenterColor = CubeColor.expectedCenter(orchestrator.currentFaceToScan.value)
         colorPalette.clear()
