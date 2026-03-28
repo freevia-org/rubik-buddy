@@ -146,11 +146,10 @@ class AppViewModel : ViewModel() {
     // -- Actions --
 
     fun resetAnalyzerBuffers() = analyzer.resetTemporalBuffers()
-    /** No-op: ColorSession is commit-only; checkpoints are no longer needed. */
-    fun saveColorCheckpoint() = Unit
     /** Reverts the given face's committed data from ColorSession. */
     fun restoreColorCheckpoint(face: Face) = colorSession.revertFace(face)
-    fun resetColorCalibration() = colorSession.reset()
+    /** Resets the ColorSession (clears all committed face data). */
+    fun resetSession() = colorSession.reset()
     fun colorCycle(wb: Int, current: CubeColor): CubeColor =
         colorSession.cycle(LabConverter.sRgbToLab(wb), current)
     fun rankFor(wb: Int, color: CubeColor): Int =

@@ -174,7 +174,7 @@ private fun ColumnScope.ScanModeLayout(
             vm.resetAnalyzerBuffers()
             vm.isAwaitingAlignment = true
             vm.tileWarningColor = null
-            vm.restoreColorCheckpoint()
+            vm.restoreColorCheckpoint(currentFace)
         },
         modifier = Modifier.fillMaxWidth()
     )
@@ -274,11 +274,11 @@ private fun ColumnScope.ScanModeLayout(
             effectiveLiveColorsSize = effectiveLiveColors.size,
             onBack = {
                 if (currentFace == ScanOrchestrator.SCAN_ORDER.first()) {
-                    vm.resetColorCalibration()
+                    vm.resetSession()
                     onBack()
                 } else {
                     log("NAV_BACK from $currentFace")
-                    if (orchestrator.moveToPreviousFace()) vm.restoreColorCheckpoint()
+                    if (orchestrator.moveToPreviousFace()) vm.restoreColorCheckpoint(currentFace)
                 }
             },
             onEdit = {
@@ -287,7 +287,7 @@ private fun ColumnScope.ScanModeLayout(
                 vm.tileWarningColor = null
                 vm.dragResetKey++
                 vm.resetAnalyzerBuffers()
-                vm.restoreColorCheckpoint()
+                vm.restoreColorCheckpoint(currentFace)
             },
             onConfirm = {
                 vm.tileWarningColor = null
@@ -295,7 +295,6 @@ private fun ColumnScope.ScanModeLayout(
             },
             onForward = {
                 log("NAV_FORWARD from $currentFace")
-                vm.saveColorCheckpoint()
                 orchestrator.moveToNextFace()
             }
         )
