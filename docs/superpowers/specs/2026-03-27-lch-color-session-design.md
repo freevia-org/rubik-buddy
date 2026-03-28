@@ -1,7 +1,7 @@
 # LCH Color Session Design
 
 **Date:** 2026-03-27
-**Status:** Approved
+**Status:** Superseded by [2026-03-28-hue-angle-scoring-design.md](2026-03-28-hue-angle-scoring-design.md)
 **Replaces:** CIELAB Gaussian NLL classifier (`ColorDetector.kt` + `ColorModel.kt`)
 
 ---

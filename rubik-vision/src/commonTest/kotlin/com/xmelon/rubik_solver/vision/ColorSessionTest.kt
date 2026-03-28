@@ -105,14 +105,15 @@ class ColorSessionTest {
         }
         session.commitFace(Face.F, colors, labs)
 
-        // weight=4 center: mean_a = (8×56×1 + 49×4)/12 = (448+196)/12 = 53.67
-        //                  mean_b = (8×36×1 + 54×4)/12 = (288+216)/12 = 42.0
-        // weight=1 center (unweighted): mean_a = (8×56 + 49)/9 = 55.22,  mean_b = (8×36+54)/9 = 38.0
-        val (meanA, meanB) = session.modelMeanFor(CubeColor.RED)!!
-        assertTrue(kotlin.math.abs(meanA - 53.67f) < 0.5f,
-            "Expected mean_a ≈ 53.67 (weight-4 center), got $meanA")
-        assertTrue(kotlin.math.abs(meanB - 42.0f) < 0.5f,
-            "Expected mean_b ≈ 42.0 (weight-4 center), got $meanB")
+        // Hues: center (49,54)→H≈47.8°, non-center (56,36)→H≈32.7°
+        // Circular weighted mean: w=4 center, w=1 each of 8 non-centers
+        // sumSin = 4·sin(47.8°)+8·sin(32.7°) ≈ 4·0.741+8·0.540 = 7.285
+        // sumCos = 4·cos(47.8°)+8·cos(32.7°) ≈ 4·0.672+8·0.841 = 9.416
+        // mean_H = atan2(7.285, 9.416) ≈ 37.8°
+        // Unweighted mean would be (47.8+8×32.7)/9 ≈ 34.4° — verifies weight matters
+        val meanH = session.modelMeanFor(CubeColor.RED)!!
+        assertTrue(meanH > 35f && meanH < 40f,
+            "Expected mean_H ≈ 37.8° (center weighted), got $meanH")
     }
 
     @Test fun `commitFace rescan replaces previous measurements`() {
