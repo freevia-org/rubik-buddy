@@ -80,6 +80,65 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
         return ranked[0].first to confidence
     }
 
+    /**
+     * Stores confirmed tile measurements for [face], rebuilds color models, and appends a
+     * [ScanEvent] to the session history. If this face was previously committed, its old
+     * measurements are replaced (rescan behaviour).
+     *
+     * [colors] — 9 confirmed CubeColors; index 4 (center) is always authoritative.
+     * [labs]   — 9 CIELAB float[3] arrays, one per tile (index matches [colors]).
+     */
+    fun commitFace(face: Face, colors: Array<CubeColor>, labs: Array<FloatArray>) {
+        require(colors.size == 9) { "Expected 9 colors, got ${colors.size}" }
+        require(labs.size == 9)   { "Expected 9 labs, got ${labs.size}" }
+
+        val isRescan = (0 until 9).any { measurements.containsKey(face to it) }
+
+        // Capture scores with the CURRENT model before this face changes it
+        val scoresBefore: List<Map<CubeColor, Float>> = labs.map { scoresFor(it) }
+
+        // Replace all 9 measurements for this face
+        for (i in 0 until 9) {
+            val weight = if (i == CENTER_TILE_INDEX) CENTER_TILE_WEIGHT else NON_CENTER_TILE_WEIGHT
+            measurements[face to i] = TileMeasurement(
+                face          = face,
+                tileIndex     = i,
+                assignedColor = colors[i],
+                lab           = labs[i].copyOf(),
+                weight        = weight
+            )
+        }
+
+        rebuild()
+
+        val tiles = (0 until 9).map { i ->
+            TileRecord(
+                tileIndex            = i,
+                isCenter             = i == CENTER_TILE_INDEX,
+                assignedColor        = colors[i],
+                lab                  = labs[i].copyOf(),
+                lch                  = LabConverter.labToLch(labs[i]),
+                weight               = if (i == CENTER_TILE_INDEX) CENTER_TILE_WEIGHT
+                                       else NON_CENTER_TILE_WEIGHT,
+                scoresBeforeThisFace = scoresBefore[i]
+            )
+        }
+        scanHistory.add(ScanEvent(clock(), face, isRescan, tiles))
+    }
+
+    /** Removes all measurements for [face] and rebuilds models. */
+    fun revertFace(face: Face) {
+        (0 until 9).forEach { measurements.remove(face to it) }
+        rebuild()
+    }
+
+    /** Clears all measurements, models, and scan history. */
+    fun reset() {
+        measurements.clear()
+        colorModels.clear()
+        scanHistory.clear()
+    }
+
     // =========================================================================
     //  Private helpers (used in Tasks 2–4)
     // =========================================================================
