@@ -15,6 +15,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "RubikSolver"
 
+include(":app")
 include(":composeApp")
 project(":composeApp").projectDir = file("composeApp")
 include(":rubik-model")

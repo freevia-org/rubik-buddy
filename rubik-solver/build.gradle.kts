@@ -4,14 +4,20 @@
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
 }
 
 kotlin {
-    androidTarget {
+    android {
+        namespace = "com.xmelon.rubik_solver.solver"
+        compileSdk = 36
+        minSdk = 28
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+            freeCompilerArgs.add("-Xexpect-actual-classes")
         }
+        withJava()
+        withHostTest { }
     }
     // cinterop activates only after build-ios-framework.sh has been run on macOS
     val xcfDir = project.file("min2phaseXCFramework/min2phase.xcframework")
@@ -37,6 +43,14 @@ kotlin {
         configureCinterop("$xcfDir/ios-arm64-simulator")
     }
 
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":rubik-model"))
@@ -46,7 +60,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.core)
         }
-        val androidUnitTest by getting {
+        val androidHostTest by getting {
             dependencies {
                 implementation(libs.junit.jupiter)
                 implementation(libs.kotlinx.coroutines.core)
@@ -55,23 +69,6 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.xmelon.rubik_solver.solver"
-    compileSdk = 36
-    defaultConfig { minSdk = 28 }
-    sourceSets {
-        getByName("main") {
-            java.srcDirs("src/androidMain/java")
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    testOptions {
-        unitTests {
-            isReturnDefaultValues = true
-            all { it.useJUnitPlatform() }
-        }
-    }
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

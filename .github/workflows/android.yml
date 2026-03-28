@@ -26,12 +26,12 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew :rubik-model:jvmTest :rubik-vision:testDebugUnitTest
+        run: ./gradlew :rubik-model:jvmTest :rubik-vision:testAndroidHostTest
 
       - name: Write google-services.json
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo "$GOOGLE_SERVICES_JSON" > composeApp/google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
 
       - name: Install consistent debug keystore
         env:
@@ -41,13 +41,13 @@ jobs:
           echo "$DEBUG_KEYSTORE_BASE64" | base64 -d > "$HOME/.android/debug.keystore"
 
       - name: Build debug APK
-        run: ./gradlew :composeApp:assembleDebug
+        run: ./gradlew :app:assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: composeApp/build/outputs/apk/debug/composeApp-debug.apk
+          path: app/build/outputs/apk/debug/rubiksolver-debug.apk
 
       # Distribute to Firebase App Distribution on pushes to main only.
       # Requires FIREBASE_SERVICE_ACCOUNT_JSON secret (contents of the
@@ -57,5 +57,5 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: |
-          echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > composeApp/firebase-service-account.json
-          ./gradlew :composeApp:appDistributionUploadDebug
+          echo "$FIREBASE_SERVICE_ACCOUNT_JSON" > app/firebase-service-account.json
+          ./gradlew :app:appDistributionUploadDebug

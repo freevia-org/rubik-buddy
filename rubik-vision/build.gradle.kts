@@ -1,12 +1,22 @@
+// rubik-vision: KMP module for camera-based colour detection.
+// Android: CubeFrameAnalyzer (CameraX), ColorSession, LabConverter.
+// iOS: stubs for LabConverter / FrameAnalyzer; CameraX classes are android-only.
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
 }
 
 kotlin {
-    androidTarget {
+    android {
+        namespace = "com.xmelon.rubik_solver.vision"
+        compileSdk = 36
+        minSdk = 28
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
+        withHostTest {
+            isReturnDefaultValues = true
         }
     }
     iosArm64()
@@ -29,7 +39,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.core)
         }
-        val androidUnitTest by getting {
+        val androidHostTest by getting {
             dependencies {
                 implementation(libs.junit.jupiter)
                 implementation(libs.truth)
@@ -38,18 +48,6 @@ kotlin {
     }
 }
 
-android {
-    namespace = "com.xmelon.rubik_solver.vision"
-    compileSdk = 36
-    defaultConfig { minSdk = 28 }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    testOptions {
-        unitTests {
-            isReturnDefaultValues = true
-            all { it.useJUnitPlatform() }
-        }
-    }
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
