@@ -10,7 +10,7 @@ solution with an animated 3D cube. Everything runs on the phone: there is no acc
 no ads, no analytics, and no image ever leaves the device.
 
 [Website](https://freevia.org/rubik-buddy/) ·
-[Privacy policy](docs/privacy-policy.md) ·
+[Privacy policy](https://freevia.org/rubik-buddy/privacy) ·
 [Support](.github/SUPPORT.md) ·
 [Security](SECURITY.md)
 
