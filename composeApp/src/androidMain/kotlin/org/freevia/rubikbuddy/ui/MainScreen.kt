@@ -1,5 +1,6 @@
 package org.freevia.rubikbuddy.ui
 
+import org.freevia.rubikbuddy.BuildConfig
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -237,21 +238,23 @@ private fun ColumnScope.ScanModeLayout(
                 }
             }
             // Debug button sits above Cube3DView so it receives touches first
-            Surface(
-                onClick = { vm.toggleDebugMode() },
-                modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
-                shape = RoundedCornerShape(8.dp),
-                color = if (vm.debugMode) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                tonalElevation = 2.dp
-            ) {
-                Text(
-                    "DBG",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (vm.debugMode) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSurface
-                )
+            if (BuildConfig.DEBUG) {
+                Surface(
+                    onClick = { vm.toggleDebugMode() },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = if (vm.debugMode) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                    tonalElevation = 2.dp
+                ) {
+                    Text(
+                        "DBG",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (vm.debugMode) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
             if (vm.isLoadingSolve) {
                 Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)), Alignment.Center) {
