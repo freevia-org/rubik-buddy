@@ -109,19 +109,19 @@ consider that if the review preview looks off.
 
 ### Phone screenshots (required: minimum 2)
 
-Capture from a phone or emulator, showing no personal data:
+Captured on a physical phone (1080x2412) with a real cube and the phone's clean status
+bar (Android demo mode), in `assets/play/screenshots/`:
 
-1. Home screen (title, subtitle, Scan Cube button).
-2. Scan screen mid-scan (viewfinder and tile grid).
-3. Tile correction or the scan result for a face.
-4. Solve screen with a move shown on the 3D cube.
-5. Solved screen.
+1. `01-scan.png`: scan screen, live camera with the tile grid and neighbour-colour guides.
+2. `02-initial-position.png`: solve screen after a valid scan, showing how to hold the cube.
+3. `03-solution-step-1.png`: move 2 of 19, with the turn named and shown on the 3D cube.
+4. `04-solution-step-2.png`: move 4 of 19.
 
-Status: only `assets/play/screenshots/01-home.png` (emulator, home screen) exists. The
-emulator's synthetic camera does not show a real cube, so the remaining screens must be
-captured on a physical phone with a real cube.
+Still worth adding before launch: a tile-correction screen and the solved screen.
 
-Capture command: `adb exec-out screencap -p > assets/play/screenshots/01-home.png`.
+Capture command: `adb exec-out screencap -p > assets/play/screenshots/<name>.png`. For a clean
+status bar, enable demo mode first (`settings put global sysui_demo_allowed 1` and the
+`com.android.systemui.demo` broadcasts), and turn it off afterwards.
 
 ## Developer account notes (verify in Play Console, rules change)
 
