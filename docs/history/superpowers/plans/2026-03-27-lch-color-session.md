@@ -14,24 +14,24 @@
 
 | Action | Path | Responsibility |
 |--------|------|----------------|
-| Modify | `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt` | Add `labToLch()` |
-| Create | `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt` | Session model: classify, commitFace, revertFace, reset, debugLog, cycle, rankFor |
-| Create | `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt` | Tests for ColorSession |
-| Modify | `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt` | Add labToLch tests |
-| Modify | `rubik-vision/src/androidMain/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt` | Inject ColorSession, add detectedLabs, remove colorDetector |
-| Modify | `composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/AppViewModel.kt` | Own ColorSession, call commitFace, remove checkpoint/calibrate methods |
-| Delete | `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt` | Replaced by ColorSession |
-| Delete | `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt` | Absorbed into ColorSession |
-| Delete | `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt` | Replaced by ColorSessionTest |
-| Delete | `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt` | Replaced by ColorSessionTest |
+| Modify | `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt` | Add `labToLch()` |
+| Create | `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt` | Session model: classify, commitFace, revertFace, reset, debugLog, cycle, rankFor |
+| Create | `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt` | Tests for ColorSession |
+| Modify | `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt` | Add labToLch tests |
+| Modify | `rubik-vision/src/androidMain/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt` | Inject ColorSession, add detectedLabs, remove colorDetector |
+| Modify | `composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/AppViewModel.kt` | Own ColorSession, call commitFace, remove checkpoint/calibrate methods |
+| Delete | `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt` | Replaced by ColorSession |
+| Delete | `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt` | Absorbed into ColorSession |
+| Delete | `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt` | Replaced by ColorSessionTest |
+| Delete | `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt` | Replaced by ColorSessionTest |
 
 ---
 
 ## Task 1: Add `labToLch` to `LabConverter`
 
 **Files:**
-- Modify: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt`
-- Modify: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt`
+- Modify: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt`
+- Modify: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt`
 
 - [ ] **Step 1: Add failing tests for `labToLch`**
 
@@ -105,8 +105,8 @@ Expected: `BUILD SUCCESSFUL` and all LabConverterTest tests green.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt \
-        rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt
+git add rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt \
+        rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt
 git commit -m "feat: add labToLch conversion to LabConverter"
 ```
 
@@ -115,18 +115,18 @@ git commit -m "feat: add labToLch conversion to LabConverter"
 ## Task 2: `ColorSession` — data classes, priors, `classify()`
 
 **Files:**
-- Create: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt`
-- Create: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt`
+- Create: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt`
+- Create: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt`
 
 - [ ] **Step 1: Write failing tests for `classify()`**
 
-Create `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt`:
+Create `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt`:
 
 ```kotlin
-package com.xmelon.rubik_solver.vision
+package org.freevia.rubikbuddy.vision
 
-import com.xmelon.rubik_solver.model.CubeColor
-import com.xmelon.rubik_solver.model.Face
+import org.freevia.rubikbuddy.model.CubeColor
+import org.freevia.rubikbuddy.model.Face
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -219,13 +219,13 @@ Expected: `FAILED` with "Unresolved reference: ColorSession"
 
 - [ ] **Step 3: Create `ColorSession.kt` with classify only**
 
-Create `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt`:
+Create `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt`:
 
 ```kotlin
-package com.xmelon.rubik_solver.vision
+package org.freevia.rubikbuddy.vision
 
-import com.xmelon.rubik_solver.model.CubeColor
-import com.xmelon.rubik_solver.model.Face
+import org.freevia.rubikbuddy.model.CubeColor
+import org.freevia.rubikbuddy.model.Face
 import kotlin.math.sqrt
 
 /**
@@ -400,8 +400,8 @@ Expected: all ColorSessionTest tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt \
-        rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt
+git add rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt \
+        rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt
 git commit -m "feat: add ColorSession with (a,b)-plane classify and LCH priors"
 ```
 
@@ -410,8 +410,8 @@ git commit -m "feat: add ColorSession with (a,b)-plane classify and LCH priors"
 ## Task 3: `ColorSession` — calibration (`commitFace`, `revertFace`, `reset`)
 
 **Files:**
-- Modify: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt`
-- Modify: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt`
+- Modify: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt`
+- Modify: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt`
 
 - [ ] **Step 1: Add failing calibration tests**
 
@@ -599,8 +599,8 @@ Expected: all ColorSessionTest tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt \
-        rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt
+git add rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt \
+        rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt
 git commit -m "feat: add ColorSession commitFace, revertFace, reset"
 ```
 
@@ -609,8 +609,8 @@ git commit -m "feat: add ColorSession commitFace, revertFace, reset"
 ## Task 4: `ColorSession` — helpers (`debugLog`, `modelSummaryStr`, `cycle`, `rankFor`)
 
 **Files:**
-- Modify: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt`
-- Modify: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt`
+- Modify: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt`
+- Modify: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt`
 
 - [ ] **Step 1: Add failing tests**
 
@@ -817,8 +817,8 @@ Expected: `BUILD SUCCESSFUL` (ColorDetectorTest / ColorModelTest still exist and
 - [ ] **Step 6: Commit**
 
 ```bash
-git add rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt \
-        rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt
+git add rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt \
+        rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt
 git commit -m "feat: add ColorSession debugLog, modelSummaryStr, cycle, rankFor"
 ```
 
@@ -827,7 +827,7 @@ git commit -m "feat: add ColorSession debugLog, modelSummaryStr, cycle, rankFor"
 ## Task 5: Wire `CubeFrameAnalyzer` to `ColorSession`
 
 **Files:**
-- Modify: `rubik-vision/src/androidMain/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/androidMain/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 - [ ] **Step 1: Update `CubeFrameAnalyzer` constructor and remove `colorDetector`**
 
@@ -913,7 +913,7 @@ Expected: `BUILD SUCCESSFUL` for the rubik-vision module.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add rubik-vision/src/androidMain/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt
+git add rubik-vision/src/androidMain/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt
 git commit -m "feat: inject ColorSession into CubeFrameAnalyzer, expose detectedLabs"
 ```
 
@@ -922,11 +922,11 @@ git commit -m "feat: inject ColorSession into CubeFrameAnalyzer, expose detected
 ## Task 6: Wire `AppViewModel` + delete old files
 
 **Files:**
-- Modify: `composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
-- Delete: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt`
-- Delete: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt`
-- Delete: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt`
-- Delete: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt`
+- Modify: `composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
+- Delete: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt`
+- Delete: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt`
+- Delete: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt`
+- Delete: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt`
 
 - [ ] **Step 1: Update `AppViewModel` — ownership and wiring**
 
@@ -944,7 +944,7 @@ val orchestrator = ScanOrchestrator()
 
 Add the `ColorSession` import at the top of the file:
 ```kotlin
-import com.xmelon.rubik_solver.vision.ColorSession
+import org.freevia.rubikbuddy.vision.ColorSession
 ```
 
 - [ ] **Step 2: Replace `confirmFace()` calibration block**
@@ -1031,10 +1031,10 @@ Expected: `BUILD SUCCESSFUL`. (ColorDetectorTest and ColorModelTest still exist 
 - [ ] **Step 7: Delete old files**
 
 ```bash
-rm rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt
-rm rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt
-rm rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt
-rm rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt
+rm rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt
+rm rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt
+rm rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt
+rm rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt
 ```
 
 - [ ] **Step 8: Build and test after deletion**
@@ -1047,11 +1047,11 @@ Expected: `BUILD SUCCESSFUL` — old files are gone, all tests pass.
 - [ ] **Step 9: Final commit**
 
 ```bash
-git add composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/AppViewModel.kt \
-        rubik-vision/src/androidMain/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt
-git rm rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt \
-       rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt \
-       rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt \
-       rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt
+git add composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/AppViewModel.kt \
+        rubik-vision/src/androidMain/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt
+git rm rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt \
+       rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt \
+       rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt \
+       rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt
 git commit -m "feat: wire AppViewModel to ColorSession, remove CIELAB Gaussian classifier"
 ```

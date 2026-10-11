@@ -26,8 +26,8 @@
 ## Task 1 — Add `modelDumpStr()` and `rankFor()` to ColorDetector
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt`
-- Test: `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt`
+- Test: `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt`
 
 - [ ] **Write failing tests**
 
@@ -122,7 +122,7 @@ Expected: same 3 pre-existing ScanOrchestratorTest failures, all new tests pass.
 ## Task 2 — Stability events + SCAN_FRAME throttle in CubeFrameAnalyzer
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 No unit tests (event emission is integration-level; verified via logcat after install).
 
@@ -202,7 +202,7 @@ Expected: no errors.
 ## Task 3 — Extend `buildDebugBitmap` with LAB + confidence annotations
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 - [ ] **Update `buildDebugBitmap` signature**
 
@@ -318,7 +318,7 @@ Expected: no errors.
 ## Task 4 — Extend CONFIRM log in AppViewModel
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
 
 - [ ] **Add CONFIRM_LABS and MODEL_DUMP log lines**
 
@@ -327,7 +327,7 @@ In `confirmFace()`, after the existing `log("CONFIRM cal_after=…")` line (curr
 ```kotlin
 // Per-tile LABs derived from liveWbRgbs for diagnostic monitoring
 val labStr = (0 until minOf(liveWbRgbs.size, 9)).joinToString(",") { i ->
-    val lab = com.xmelon.rubik_solver.vision.LabConverter.sRgbToLab(liveWbRgbs[i])
+    val lab = org.freevia.rubikbuddy.vision.LabConverter.sRgbToLab(liveWbRgbs[i])
     "[%.0f,%.0f,%.0f]".format(lab[0], lab[1], lab[2])
 }
 log("CONFIRM_LABS face=$face $labStr")
@@ -346,7 +346,7 @@ Expected: no errors.
 ## Task 5 — Extend TILE_TAP log in MainScreen
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/MainScreen.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/MainScreen.kt`
 
 - [ ] **Replace the TILE_TAP log line**
 
@@ -358,7 +358,7 @@ log("TILE_TAP face=$face ci=$ci wb=#${"%06X".format(wb)} before=${before.name} a
 Replace with:
 ```kotlin
 val labStr = if (wb != 0) {
-    val lab = com.xmelon.rubik_solver.vision.LabConverter.sRgbToLab(wb)
+    val lab = org.freevia.rubikbuddy.vision.LabConverter.sRgbToLab(wb)
     "[%.1f,%.1f,%.1f]".format(lab[0], lab[1], lab[2])
 } else "N/A"
 val rank = if (wb != 0) analyzer.colorDetector.rankFor(wb, alt) else -1
@@ -377,7 +377,7 @@ Expected: no errors.
 ## Task 6 — Verify and fix DBG overlay rendering in CameraPreview
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`
 
 - [ ] **Simplify the debug bitmap draw to fill the camera preview region**
 

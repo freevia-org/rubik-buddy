@@ -7,7 +7,7 @@ Address all issues identified in the March 2026 code review. Fixes are grouped i
 ## Bucket A — rubik-model
 
 ### A1. CubeValidator crash on out-of-range facelets (Critical)
-**File:** `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/CubeValidator.kt`
+**File:** `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/CubeValidator.kt`
 
 Add an early guard at the top of `validate()`: if any facelet value is outside the valid range `0 until CubeColor.entries.size`, return `Invalid("Cube is not fully scanned")` before any counting or lookup. This subsumes the `-1` partially-scanned sentinel as well as any other corrupt facelet value, preventing `ArrayIndexOutOfBoundsException`. `CubeState.fromFacelets` explicitly permits `-1` as a valid partially-scanned sentinel, so `-1` is the expected case.
 
@@ -16,17 +16,17 @@ if (state.facelets.any { it !in 0 until CubeColor.entries.size }) return Invalid
 ```
 
 ### A2. `Move.parseSequence` crash on empty string (Minor)
-**File:** `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/Move.kt`
+**File:** `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/Move.kt`
 
 Add `if (sequence.isBlank()) return emptyList()` before the `split` call. Kotlin's `split` on an empty string returns `[""]`, causing `parse("")` to throw.
 
 ### A3. `tiltForward()` dead code (Important)
-**File:** `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/CubeState.kt`
+**File:** `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/CubeState.kt`
 
 Confirm `tiltForward()` is never called anywhere in the codebase (grep shows zero call sites outside the class itself). Delete the method and its KDoc entirely.
 
 ### A4. Dead commented-out assertion in `CubeStateTest` (Minor)
-**File:** `rubik-model/src/test/kotlin/com/xmelon/rubik_solver/model/CubeStateTest.kt`
+**File:** `rubik-model/src/test/kotlin/org/freevia/rubikbuddy/model/CubeStateTest.kt`
 
 Delete the dead `expectedFaceletString` variable and the "Wait, my expected string..." comment block (lines 44–53).
 
@@ -35,7 +35,7 @@ Delete the dead `expectedFaceletString` variable and the "Wait, my expected stri
 ## Bucket B — rubik-solver
 
 ### B1. Main-thread block at startup (Important)
-**File:** `app/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt`
+**File:** `app/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt`
 **Location:** `HomeScreen` composable, `LaunchedEffect(Unit)` block (~line 89)
 
 `CubeSolver.initialize()` is called from a `LaunchedEffect(Unit)` inside the `HomeScreen` composable. `LaunchedEffect` runs on `Dispatchers.Main` by default, so this ~1-second CPU-bound operation blocks the main thread. Wrap it in `withContext(Dispatchers.Default)`:
@@ -49,7 +49,7 @@ LaunchedEffect(Unit) {
 Note: `initialize()` is `@Synchronized` so concurrent calls from `solve()` are safe.
 
 ### B2. User-visible error strings in code (Minor)
-**Files:** `rubik-solver/src/main/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt`, `app/src/main/res/values/strings.xml`, `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
+**Files:** `rubik-solver/src/main/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt`, `app/src/main/res/values/strings.xml`, `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
 
 Move hardcoded English solver error strings out of `CubeSolver.kt` (which has no Android dependency) into `strings.xml`. `CubeSolver` should return the raw error code strings (e.g. `"Error 2"`). Map error codes to `R.string.*` in `AppViewModel` where Android context is available.
 
@@ -58,7 +58,7 @@ Move hardcoded English solver error strings out of `CubeSolver.kt` (which has no
 ## Bucket C — rubik-vision
 
 ### C1. Per-frame heap allocations in `extractGridColors` (Important)
-**File:** `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+**File:** `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 Promote these to class-level pre-allocated fields (following the existing `pixelBuffer`/`labSortBuf` pattern):
 - `rawLab: Array<FloatArray>` — `Array(9) { FloatArray(3) }`
@@ -70,12 +70,12 @@ Promote these to class-level pre-allocated fields (following the existing `pixel
 Clear/reuse each frame instead of allocating. Gate the `tileStr` `joinToString` construction behind `if (Log.isLoggable(TAG, Log.VERBOSE))`.
 
 ### C2. Median bias for even-sized buffers (Important)
-**File:** `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+**File:** `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 In `labMedian`, when `n` is even, compute the true median as the average of `labSortBuf[n/2 - 1]` and `labSortBuf[n/2]` instead of using only `labSortBuf[n/2]`. With `TEMPORAL_BUFFER_SIZE = 8`, the buffer is always even once filled, making this bias systematic.
 
 ### C3. Silent error swallowing in `analyze()` (Important)
-**File:** `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+**File:** `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 In the `catch` block for `extractGridColors`, after logging, clear all three per-frame color StateFlows so the UI reflects the failure state rather than showing stale data:
 
@@ -88,7 +88,7 @@ _detectedWbRgbs.value = IntArray(0)
 Optionally also clear `_confidence`.
 
 ### C4. Clarify threading on `wasStable` (Minor)
-**File:** `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+**File:** `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 `wasStable` is written from two threads: the camera executor thread (in `analyze()`) and the main thread (via `resetTemporalBuffers()` called from `AppViewModel`). The `@Volatile` annotation is therefore correct and must be retained. Add a comment explaining this cross-thread access pattern. `lastScanFrameMs` is only written from the camera executor thread — document this too.
 
@@ -97,7 +97,7 @@ Optionally also clear `_confidence`.
 ## Bucket D — app
 
 ### D1. `currentFramePolys` race condition in `Cube3DView` (Critical)
-**File:** `app/src/main/kotlin/com/xmelon/rubik_solver/ui/Cube3DView.kt`
+**File:** `app/src/main/kotlin/org/freevia/rubikbuddy/ui/Cube3DView.kt`
 
 Replace `mutableListOf<RenderPoly>()` with `AtomicReference<List<RenderPoly>>(emptyList())`. In `Canvas {}`, build the full list into a local `val`, then swap via `.set()` after completion. The `pointerInput` handler reads via `.get()`. No partial list is ever visible across threads.
 
@@ -121,17 +121,17 @@ Add wrapper methods to `AppViewModel` for each operation currently accessed via 
 Update all call sites in `MainScreen.kt` to use the new ViewModel methods.
 
 ### D4. `Screen` and `AppMode` enum placement (Minor)
-**Files:** `app/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt`, `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
+**Files:** `app/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt`, `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
 
-`Screen` is defined in `MainActivity.kt` and `AppMode` is defined in `AppViewModel.kt`. Move both to a new file `app/src/main/kotlin/com/xmelon/rubik_solver/AppState.kt`. Update all imports.
+`Screen` is defined in `MainActivity.kt` and `AppMode` is defined in `AppViewModel.kt`. Move both to a new file `app/src/main/kotlin/org/freevia/rubikbuddy/AppState.kt`. Update all imports.
 
 ### D5. `remember(bmp)` no-op in `CameraPreview` (Minor)
-**File:** `app/src/main/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`
+**File:** `app/src/main/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`
 
 Remove the `remember` wrapper around `bmp.asImageBitmap()`. The key changes every frame (new `Bitmap` object each frame) so the cache is never reused; call `bmp.asImageBitmap()` directly.
 
 ### D6. `gap` dead code in `Cube3DView.buildCubies` (Minor)
-**File:** `app/src/main/kotlin/com/xmelon/rubik_solver/ui/Cube3DView.kt`
+**File:** `app/src/main/kotlin/org/freevia/rubikbuddy/ui/Cube3DView.kt`
 
 Delete `gap`, `gapX`, `gapY`, `gapZ` (all evaluate to `0f`). Use `cx`, `cy`, `cz` directly in the `v(...)` lambda.
 

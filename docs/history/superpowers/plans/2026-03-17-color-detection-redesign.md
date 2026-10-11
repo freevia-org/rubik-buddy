@@ -14,28 +14,28 @@
 
 | Action | Path | Responsibility |
 |--------|------|----------------|
-| **Create** | `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt` | sRGB ↔ CIELAB conversion (pure math, no Android) |
-| **Create** | `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt` | Bayesian Gaussian model for one color |
-| **Rewrite** | `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt` | Classification + calibration using 6 ColorModels |
-| **Rewrite** | `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt` | LAB tile extraction + temporal smoothing + StateFlows |
-| **Modify** | `app/src/main/kotlin/com/xmelon/rubik_solver/ui/FaceColorOverrides.kt` | Add `calibrateTile` call on manual tile override |
-| **Create** | `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt` | Round-trip and known-color tests |
-| **Create** | `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt` | Convergence and Welford correctness tests |
-| **Create** | `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt` | Classification, calibration, checkpoint tests |
+| **Create** | `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt` | sRGB ↔ CIELAB conversion (pure math, no Android) |
+| **Create** | `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt` | Bayesian Gaussian model for one color |
+| **Rewrite** | `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt` | Classification + calibration using 6 ColorModels |
+| **Rewrite** | `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt` | LAB tile extraction + temporal smoothing + StateFlows |
+| **Modify** | `app/src/main/kotlin/org/freevia/rubikbuddy/ui/FaceColorOverrides.kt` | Add `calibrateTile` call on manual tile override |
+| **Create** | `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt` | Round-trip and known-color tests |
+| **Create** | `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt` | Convergence and Welford correctness tests |
+| **Create** | `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt` | Classification, calibration, checkpoint tests |
 
 ---
 
 ## Task 1: LabConverter — sRGB ↔ CIELAB
 
 **Files:**
-- Create: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt`
-- Create: `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt`
+- Create: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt`
+- Create: `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt`
 
 - [ ] **Step 1: Write failing tests**
 
 ```kotlin
-// rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt
+package org.freevia.rubikbuddy.vision
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
@@ -110,8 +110,8 @@ Expected: compilation error — `LabConverter` not found.
 - [ ] **Step 3: Implement LabConverter**
 
 ```kotlin
-// rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt
+package org.freevia.rubikbuddy.vision
 
 import kotlin.math.abs
 import kotlin.math.pow
@@ -212,8 +212,8 @@ Expected: 6 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt \
-        rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt
+git add rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt \
+        rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt
 git commit -m "feat(vision): add LabConverter — sRGB ↔ CIELAB pure-math utility"
 ```
 
@@ -222,14 +222,14 @@ git commit -m "feat(vision): add LabConverter — sRGB ↔ CIELAB pure-math util
 ## Task 2: ColorModel — Bayesian Gaussian
 
 **Files:**
-- Create: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt`
-- Create: `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt`
+- Create: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt`
+- Create: `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt`
 
 - [ ] **Step 1: Write failing tests**
 
 ```kotlin
-// rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt
+package org.freevia.rubikbuddy.vision
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
@@ -313,8 +313,8 @@ Expected: compilation error — `ColorModel` not found.
 - [ ] **Step 3: Implement ColorModel**
 
 ```kotlin
-// rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt
+package org.freevia.rubikbuddy.vision
 
 import kotlin.math.ln
 
@@ -393,8 +393,8 @@ Expected: 7 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt \
-        rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt
+git add rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt \
+        rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt
 git commit -m "feat(vision): add ColorModel — Bayesian Gaussian in CIELAB with Welford online update"
 ```
 
@@ -403,19 +403,19 @@ git commit -m "feat(vision): add ColorModel — Bayesian Gaussian in CIELAB with
 ## Task 3: ColorDetector rewrite
 
 **Files:**
-- Rewrite: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt`
-- Create: `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt`
+- Rewrite: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt`
+- Create: `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt`
 
 **Note:** The existing `ColorDetector.kt` is being fully replaced. Read it first (`git diff HEAD` before overwriting helps if debugging is needed).
 
 - [ ] **Step 1: Write failing tests**
 
 ```kotlin
-// rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt
+package org.freevia.rubikbuddy.vision
 
 import com.google.common.truth.Truth.assertThat
-import com.xmelon.rubik_solver.model.CubeColor
+import org.freevia.rubikbuddy.model.CubeColor
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -547,10 +547,10 @@ Expected: compilation errors — methods not found in old ColorDetector.
 - [ ] **Step 3: Rewrite ColorDetector.kt**
 
 ```kotlin
-// rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt
+package org.freevia.rubikbuddy.vision
 
-import com.xmelon.rubik_solver.model.CubeColor
+import org.freevia.rubikbuddy.model.CubeColor
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -718,8 +718,8 @@ Expected: all tests pass (including `ScanOrchestratorTest`).
 - [ ] **Step 6: Commit**
 
 ```bash
-git add rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt \
-        rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt
+git add rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt \
+        rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt
 git commit -m "feat(vision): rewrite ColorDetector — Bayesian Gaussian in CIELAB, remove WB"
 ```
 
@@ -728,7 +728,7 @@ git commit -m "feat(vision): rewrite ColorDetector — Bayesian Gaussian in CIEL
 ## Task 4: CubeFrameAnalyzer rewrite
 
 **Files:**
-- Rewrite: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Rewrite: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 No new unit tests for this class — it depends on `ImageProxy` / `Bitmap` (Android) and is covered by the integration (on-device) test path. The focus here is correctness of the rewrite.
 
@@ -746,8 +746,8 @@ Keep the current file open in a diff view or take a note of the following parts 
 - [ ] **Step 2: Rewrite CubeFrameAnalyzer.kt**
 
 ```kotlin
-// rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt
-package com.xmelon.rubik_solver.vision
+// rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt
+package org.freevia.rubikbuddy.vision
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -756,7 +756,7 @@ import android.graphics.Paint
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.xmelon.rubik_solver.model.CubeColor
+import org.freevia.rubikbuddy.model.CubeColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.concurrent.atomic.AtomicReference
@@ -1089,7 +1089,7 @@ Expected: all tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt
+git add rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt
 git commit -m "feat(vision): rewrite CubeFrameAnalyzer — LAB tile median, confidence-gated stability"
 ```
 
@@ -1098,8 +1098,8 @@ git commit -m "feat(vision): rewrite CubeFrameAnalyzer — LAB tile median, conf
 ## Task 5: Add calibrateTile call site in FaceColorOverrides
 
 **Files:**
-- Read: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/FaceColorOverrides.kt`
-- Read: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/MainScreen.kt`
+- Read: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/FaceColorOverrides.kt`
+- Read: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/MainScreen.kt`
 - Modify: whichever file contains the tile tap / color override handler
 
 **Goal:** When the user taps a tile and cycles its color, call `analyzer.colorDetector.calibrateTile(tileRgb, newColor)` so the manual correction improves future frames.
@@ -1137,7 +1137,7 @@ Expected: BUILD SUCCESSFUL. Fix any compilation errors.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add app/src/main/kotlin/com/xmelon/rubik_solver/ui/FaceColorOverrides.kt
+git add app/src/main/kotlin/org/freevia/rubikbuddy/ui/FaceColorOverrides.kt
 # or MainScreen.kt — whichever file was modified
 git commit -m "feat(app): feed manual tile overrides into Bayesian color model"
 ```

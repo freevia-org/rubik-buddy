@@ -15,25 +15,25 @@
 ## File Map
 
 **Modified files:**
-- `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/CubeValidator.kt` — A1: add out-of-range guard
-- `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/Move.kt` — A2: blank-string guard
-- `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/CubeState.kt` — A3: delete tiltForward()
-- `rubik-model/src/test/kotlin/com/xmelon/rubik_solver/model/CubeStateTest.kt` — A4: remove dead code
-- `app/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt` — B1: withContext wrap; D4: Screen enum moved out
-- `rubik-solver/src/main/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt` — B2: return raw error codes
+- `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/CubeValidator.kt` — A1: add out-of-range guard
+- `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/Move.kt` — A2: blank-string guard
+- `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/CubeState.kt` — A3: delete tiltForward()
+- `rubik-model/src/test/kotlin/org/freevia/rubikbuddy/model/CubeStateTest.kt` — A4: remove dead code
+- `app/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt` — B1: withContext wrap; D4: Screen enum moved out
+- `rubik-solver/src/main/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt` — B2: return raw error codes
 - `app/src/main/res/values/strings.xml` — B2: add solver error strings
-- `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt` — B2: map codes to strings; D2: use SCAN_ORDER; D3: add wrappers including toggleDebugMode; D4: AppMode moved out
-- `app/src/main/kotlin/com/xmelon/rubik_solver/ui/ScreenHeaders.kt` — B2: use solverErrorMessage() helper
-- `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt` — C1: pre-alloc; C2: median fix; C3: clear on error; C4: comment fix
-- `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ScanOrchestrator.kt` — D2: add SCAN_ORDER companion
-- `app/src/main/kotlin/com/xmelon/rubik_solver/ui/ScreenProgressBar.kt` — D2: use ScanOrchestrator.SCAN_ORDER
-- `app/src/main/kotlin/com/xmelon/rubik_solver/ui/MainScreen.kt` — D3: use VM wrappers
-- `app/src/main/kotlin/com/xmelon/rubik_solver/ui/Cube3DView.kt` — D1: AtomicReference; D6: remove gap
-- `app/src/main/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt` — D5: remove remember(bmp)
+- `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt` — B2: map codes to strings; D2: use SCAN_ORDER; D3: add wrappers including toggleDebugMode; D4: AppMode moved out
+- `app/src/main/kotlin/org/freevia/rubikbuddy/ui/ScreenHeaders.kt` — B2: use solverErrorMessage() helper
+- `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt` — C1: pre-alloc; C2: median fix; C3: clear on error; C4: comment fix
+- `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ScanOrchestrator.kt` — D2: add SCAN_ORDER companion
+- `app/src/main/kotlin/org/freevia/rubikbuddy/ui/ScreenProgressBar.kt` — D2: use ScanOrchestrator.SCAN_ORDER
+- `app/src/main/kotlin/org/freevia/rubikbuddy/ui/MainScreen.kt` — D3: use VM wrappers
+- `app/src/main/kotlin/org/freevia/rubikbuddy/ui/Cube3DView.kt` — D1: AtomicReference; D6: remove gap
+- `app/src/main/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt` — D5: remove remember(bmp)
 
 **Created files:**
-- `app/src/main/kotlin/com/xmelon/rubik_solver/AppState.kt` — D4: Screen + AppMode enums
-- `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzerTest.kt` — E4
+- `app/src/main/kotlin/org/freevia/rubikbuddy/AppState.kt` — D4: Screen + AppMode enums
+- `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzerTest.kt` — E4
 
 **Test commands:**
 - Model: `./gradlew :rubik-model:test`
@@ -52,7 +52,7 @@
 ### Task A1: CubeValidator guard against out-of-range facelets
 
 **Files:**
-- Modify: `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/CubeValidator.kt`
+- Modify: `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/CubeValidator.kt`
 
 - [ ] **Step 1: Add the guard as the first statement in `validate()`**
 
@@ -91,7 +91,7 @@
 ### Task A2: Move.parseSequence crash on blank input
 
 **Files:**
-- Modify: `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/Move.kt`
+- Modify: `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/Move.kt`
 
 - [ ] **Step 1: Add blank guard before the split**
 
@@ -122,7 +122,7 @@
 ### Task A3: Delete tiltForward() dead code
 
 **Files:**
-- Modify: `rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/CubeState.kt`
+- Modify: `rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/CubeState.kt`
 
 - [ ] **Step 1: Confirm no call sites exist**
 
@@ -146,7 +146,7 @@
 ### Task A4: Remove dead commented-out assertion in CubeStateTest
 
 **Files:**
-- Modify: `rubik-model/src/test/kotlin/com/xmelon/rubik_solver/model/CubeStateTest.kt`
+- Modify: `rubik-model/src/test/kotlin/org/freevia/rubikbuddy/model/CubeStateTest.kt`
 
 - [ ] **Step 1: Delete lines 44–53**
 
@@ -170,7 +170,7 @@
 ### Task B1: Fix main-thread block at startup
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt`
 
 - [ ] **Step 1: Wrap the CubeSolver.initialize() call in withContext(Dispatchers.Default)**
 
@@ -215,9 +215,9 @@
 ### Task B2: Move solver error strings to strings.xml
 
 **Files:**
-- Modify: `rubik-solver/src/main/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt`
+- Modify: `rubik-solver/src/main/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt`
 - Modify: `app/src/main/res/values/strings.xml`
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
 
 - [ ] **Step 1: Change CubeSolver.parseError to return raw error codes**
 
@@ -254,7 +254,7 @@
 
 - [ ] **Step 3: Replace the raw reason display in ScreenHeaders.kt**
 
-  `SolveResult.Error.reason` is rendered in `app/src/main/kotlin/com/xmelon/rubik_solver/ui/ScreenHeaders.kt` at line 71, inside `SolveHeader`:
+  `SolveResult.Error.reason` is rendered in `app/src/main/kotlin/org/freevia/rubikbuddy/ui/ScreenHeaders.kt` at line 71, inside `SolveHeader`:
 
   ```kotlin
   // Current line 70–71:
@@ -302,7 +302,7 @@
 ### Task C1: Eliminate per-frame heap allocations in extractGridColors
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 - [ ] **Step 1: Promote rawLab and smoothedLab to class-level fields**
 
@@ -460,7 +460,7 @@
 ### Task C2: Fix labMedian even-n bias
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 *This fix is fully included in Task C1 Step 3 — the new `labMedian(labs, dest)` overload uses `(labSortBuf[mid-1] + labSortBuf[mid]) / 2f` for even `n`. If implementing C2 without C1 (e.g., in a separate pass), apply it to the existing `labMedian` function at line 296:*
 
@@ -486,7 +486,7 @@
 ### Task C3: Clear StateFlows on extractGridColors failure
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 - [ ] **Step 1: Update the catch block in analyze()**
 
@@ -518,7 +518,7 @@
 ### Task C4: Clarify @Volatile threading comment
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`
 
 - [ ] **Step 1: Replace the misleading comment at line 90**
 
@@ -555,7 +555,7 @@
 ### Task D1: Fix currentFramePolys race condition in Cube3DView
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/Cube3DView.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/Cube3DView.kt`
 
 - [ ] **Step 1: Replace mutableListOf with AtomicReference**
 
@@ -612,9 +612,9 @@
 ### Task D2: Deduplicate scan order constant
 
 **Files:**
-- Modify: `rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ScanOrchestrator.kt`
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/ScreenProgressBar.kt`
+- Modify: `rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ScanOrchestrator.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/ScreenProgressBar.kt`
 
 - [ ] **Step 1: Add companion object with SCAN_ORDER to ScanOrchestrator**
 
@@ -666,7 +666,7 @@
   // AFTER
   val idx = (scanningFace?.let { ScanOrchestrator.SCAN_ORDER.indexOf(it) + 1 } ?: 1).coerceAtLeast(1)
   ```
-  Add import: `import com.xmelon.rubik_solver.vision.ScanOrchestrator`
+  Add import: `import org.freevia.rubikbuddy.vision.ScanOrchestrator`
 
 - [ ] **Step 4: Build to confirm**
 
@@ -679,8 +679,8 @@
 ### Task D3: Add ViewModel wrappers for analyzer/orchestrator internals
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/MainScreen.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/MainScreen.kt`
 
 The goal: composables should call ViewModel methods, not reach through `vm.analyzer.*` or `vm.orchestrator.*`.
 
@@ -873,16 +873,16 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task D4: Move Screen and AppMode enums to AppState.kt
 
 **Files:**
-- Create: `app/src/main/kotlin/com/xmelon/rubik_solver/AppState.kt`
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt`
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt`
+- Create: `app/src/main/kotlin/org/freevia/rubikbuddy/AppState.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt`
 
 - [ ] **Step 1: Create AppState.kt with both enums**
 
-  Create a new file `app/src/main/kotlin/com/xmelon/rubik_solver/AppState.kt`:
+  Create a new file `app/src/main/kotlin/org/freevia/rubikbuddy/AppState.kt`:
 
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
 
   enum class Screen { HOME, SCAN }
 
@@ -908,14 +908,14 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
   ```
   ./gradlew :app:compileDebugKotlin
   ```
-  Both enums are in the same package (`com.xmelon.rubik_solver`) so no import changes are needed.
+  Both enums are in the same package (`org.freevia.rubikbuddy`) so no import changes are needed.
 
 ---
 
 ### Task D5: Remove no-op remember(bmp) in CameraPreview
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`
 
 - [ ] **Step 1: Replace remember(bmp) with direct call**
 
@@ -939,7 +939,7 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task D6: Remove gap dead code in Cube3DView.buildCubies
 
 **Files:**
-- Modify: `app/src/main/kotlin/com/xmelon/rubik_solver/ui/Cube3DView.kt`
+- Modify: `app/src/main/kotlin/org/freevia/rubikbuddy/ui/Cube3DView.kt`
 
 - [ ] **Step 1: Delete gap, gapX, gapY, gapZ and simplify the v() lambda**
 
@@ -978,7 +978,7 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task E1: CubeValidatorTest — out-of-range facelets
 
 **Files:**
-- Modify: `rubik-model/src/test/kotlin/com/xmelon/rubik_solver/model/CubeValidatorTest.kt`
+- Modify: `rubik-model/src/test/kotlin/org/freevia/rubikbuddy/model/CubeValidatorTest.kt`
 
 - [ ] **Step 1: Add the test**
 
@@ -1011,7 +1011,7 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task E2: CubeStateTest — permute() vs applyMoves() agreement
 
 **Files:**
-- Modify: `rubik-model/src/test/kotlin/com/xmelon/rubik_solver/model/CubeStateTest.kt`
+- Modify: `rubik-model/src/test/kotlin/org/freevia/rubikbuddy/model/CubeStateTest.kt`
 
 - [ ] **Step 1: Add the test**
 
@@ -1050,7 +1050,7 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task E3: CubeSolverTest — timeout path
 
 **Files:**
-- Modify: `rubik-solver/src/test/kotlin/com/xmelon/rubik_solver/solver/CubeSolverTest.kt`
+- Modify: `rubik-solver/src/test/kotlin/org/freevia/rubikbuddy/solver/CubeSolverTest.kt`
 
 - [ ] **Step 1: Add the test**
 
@@ -1081,14 +1081,14 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task E4a: CubeFrameAnalyzerTest — JVM unit tests (public API)
 
 **Files:**
-- Create: `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzerTest.kt`
+- Create: `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzerTest.kt`
 
 > **Context:** `CubeFrameAnalyzer.analyze(ImageProxy)` and `extractGridColors` require Android's `Bitmap` and `ImageProxy` classes, which are not available in JVM unit tests. These tests cover the public StateFlow API and thread-safe reset behavior. The full pipeline (bitmap → color classification) is covered in Task E4b (instrumented tests).
 
 - [ ] **Step 1: Create the JVM unit test file**
 
   ```kotlin
-  package com.xmelon.rubik_solver.vision
+  package org.freevia.rubikbuddy.vision
 
   import com.google.common.truth.Truth.assertThat
   import org.junit.jupiter.api.BeforeEach
@@ -1146,14 +1146,14 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task E4b: CubeFrameAnalyzerTest — instrumented tests (full pipeline)
 
 **Files:**
-- Create: `rubik-vision/src/androidTest/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzerInstrumentedTest.kt`
+- Create: `rubik-vision/src/androidTest/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzerInstrumentedTest.kt`
 
 > **Context:** These tests require an Android device or emulator. They cover the three spec E4 items that need `Bitmap`: solid-color grid detection, ring buffer stabilization, and StateFlow clearing on error. Run with `./gradlew :rubik-vision:connectedAndroidTest`.
 
 - [ ] **Step 1: Create the instrumented test file**
 
   ```kotlin
-  package com.xmelon.rubik_solver.vision
+  package org.freevia.rubikbuddy.vision
 
   import android.graphics.Bitmap
   import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1218,7 +1218,7 @@ Review the actual call sites in `MainScreen.kt` and identify which ones need wra
 ### Task E5: ScanOrchestratorTest — additional cases
 
 **Files:**
-- Modify: `rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ScanOrchestratorTest.kt`
+- Modify: `rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ScanOrchestratorTest.kt`
 
 - [ ] **Step 1: Add reset() test**
 

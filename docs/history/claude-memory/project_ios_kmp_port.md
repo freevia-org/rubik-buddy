@@ -14,7 +14,7 @@ All 9 tasks from `docs/superpowers/plans/2026-03-21-ios-kmp-port.md` are impleme
 - Tasks 1–4: KMP foundation (rubik-model, rubik-vision, rubik-solver, composeApp converted to KMP)
 - Task 6: composeApp renamed, CMP plugin added
 - Tasks 7–9: All UI moved to commonMain, expect/actual for CameraPreviewLayer + CameraPermission + PlatformLog, iosApp entry point files (Swift + MainViewController.kt)
-- CMP resources: `composeApp/src/commonMain/composeResources/values/strings.xml` + `compose.resources { packageOfResClass = "com.xmelon.rubik_solver.generated.resources" }` in build.gradle.kts
+- CMP resources: `composeApp/src/commonMain/composeResources/values/strings.xml` + `compose.resources { packageOfResClass = "org.freevia.rubikbuddy.generated.resources" }` in build.gradle.kts
 
 ## Key technical fixes applied
 - AGP 9.1.0 + KMP: `android.builtInKotlin=false` and `android.newDsl=false` in gradle.properties

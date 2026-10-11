@@ -14,16 +14,16 @@
 
 | Action | File |
 |--------|------|
-| Modify | `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt` |
-| Modify | `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt` |
+| Modify | `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt` |
+| Modify | `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt` |
 
 ---
 
 ## Task 1: Replace (a,b) scoring with hue-angle scoring
 
 **Files:**
-- Modify: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt`
-- Modify: `rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt`
+- Modify: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt`
+- Modify: `rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt`
 
 ### Step 1: Update the `center tile gets CENTER_TILE_WEIGHT` test
 
@@ -281,8 +281,8 @@ Expected: BUILD SUCCESSFUL.
 ### Step 6: Commit
 
 ```bash
-git add rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/ColorSession.kt \
-        rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/ColorSessionTest.kt \
+git add rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/ColorSession.kt \
+        rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/ColorSessionTest.kt \
         docs/superpowers/specs/2026-03-27-lch-color-session-design.md \
         docs/superpowers/specs/2026-03-28-hue-angle-scoring-design.md
 git commit -m "feat: replace (a,b) Euclidean scoring with chroma-invariant hue-angle scoring"

@@ -160,12 +160,12 @@ This module has zero Android dependencies — it's the easiest KMP conversion.
 - [ ] **Step 1: Move source files to commonMain**
 
   ```bash
-  mkdir -p rubik-model/src/commonMain/kotlin/com/xmelon/rubik_solver/model
-  mv rubik-model/src/main/kotlin/com/xmelon/rubik_solver/model/*.kt \
-     rubik-model/src/commonMain/kotlin/com/xmelon/rubik_solver/model/
-  mkdir -p rubik-model/src/commonTest/kotlin/com/xmelon/rubik_solver/model
-  mv rubik-model/src/test/kotlin/com/xmelon/rubik_solver/model/*.kt \
-     rubik-model/src/commonTest/kotlin/com/xmelon/rubik_solver/model/
+  mkdir -p rubik-model/src/commonMain/kotlin/org/freevia/rubikbuddy/model
+  mv rubik-model/src/main/kotlin/org/freevia/rubikbuddy/model/*.kt \
+     rubik-model/src/commonMain/kotlin/org/freevia/rubikbuddy/model/
+  mkdir -p rubik-model/src/commonTest/kotlin/org/freevia/rubikbuddy/model
+  mv rubik-model/src/test/kotlin/org/freevia/rubikbuddy/model/*.kt \
+     rubik-model/src/commonTest/kotlin/org/freevia/rubikbuddy/model/
   ```
 
 - [ ] **Step 2: Replace build.gradle.kts**
@@ -233,18 +233,18 @@ This module has zero Android dependencies — it's the easiest KMP conversion.
 
 **Files:**
 - Modify: `rubik-vision/build.gradle.kts`
-- Create: `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/FrameAnalyzer.kt`
+- Create: `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/FrameAnalyzer.kt`
 - Move (pure Kotlin): LabConverter, ColorModel, ColorDetector, ScanOrchestrator → `commonMain`
 - Move (Android): CubeFrameAnalyzer → `androidMain`
 - Move: tests → `commonTest` (migrate Truth → kotlin.test) + `androidUnitTest` for CubeFrameAnalyzer
 
 - [ ] **Step 1: Create the FrameAnalyzer interface in commonMain**
 
-  Create `rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/FrameAnalyzer.kt`:
+  Create `rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/FrameAnalyzer.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.vision
+  package org.freevia.rubikbuddy.vision
 
-  import com.xmelon.rubik_solver.model.CubeColor
+  import org.freevia.rubikbuddy.model.CubeColor
 
   /**
    * Platform-agnostic interface for frame-by-frame cube color detection.
@@ -263,24 +263,24 @@ This module has zero Android dependencies — it's the easiest KMP conversion.
 - [ ] **Step 2: Move pure-Kotlin vision files to commonMain**
 
   ```bash
-  mkdir -p rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision
+  mkdir -p rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision
   # Move these files (no Android imports):
-  mv rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/LabConverter.kt \
-     rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/
-  mv rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorModel.kt \
-     rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/
-  mv rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ColorDetector.kt \
-     rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/
-  mv rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/ScanOrchestrator.kt \
-     rubik-vision/src/commonMain/kotlin/com/xmelon/rubik_solver/vision/
+  mv rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/LabConverter.kt \
+     rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/
+  mv rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorModel.kt \
+     rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/
+  mv rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ColorDetector.kt \
+     rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/
+  mv rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/ScanOrchestrator.kt \
+     rubik-vision/src/commonMain/kotlin/org/freevia/rubikbuddy/vision/
   ```
 
 - [ ] **Step 3: Move CubeFrameAnalyzer to androidMain**
 
   ```bash
-  mkdir -p rubik-vision/src/androidMain/kotlin/com/xmelon/rubik_solver/vision
-  mv rubik-vision/src/main/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt \
-     rubik-vision/src/androidMain/kotlin/com/xmelon/rubik_solver/vision/
+  mkdir -p rubik-vision/src/androidMain/kotlin/org/freevia/rubikbuddy/vision
+  mv rubik-vision/src/main/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt \
+     rubik-vision/src/androidMain/kotlin/org/freevia/rubikbuddy/vision/
   ```
 
   Then add `implements FrameAnalyzer` to `CubeFrameAnalyzer`'s class declaration:
@@ -293,17 +293,17 @@ This module has zero Android dependencies — it's the easiest KMP conversion.
 - [ ] **Step 4: Move tests to commonTest / androidUnitTest**
 
   ```bash
-  mkdir -p rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision
+  mkdir -p rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision
   # These test pure Kotlin code — move to commonTest:
-  mv rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/LabConverterTest.kt \
-     rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/
-  mv rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorModelTest.kt \
-     rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/
-  mv rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ColorDetectorTest.kt \
-     rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/
+  mv rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/LabConverterTest.kt \
+     rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/
+  mv rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorModelTest.kt \
+     rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/
+  mv rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ColorDetectorTest.kt \
+     rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/
   # ScanOrchestratorTest uses coroutines — also commonTest:
-  mv rubik-vision/src/test/kotlin/com/xmelon/rubik_solver/vision/ScanOrchestratorTest.kt \
-     rubik-vision/src/commonTest/kotlin/com/xmelon/rubik_solver/vision/
+  mv rubik-vision/src/test/kotlin/org/freevia/rubikbuddy/vision/ScanOrchestratorTest.kt \
+     rubik-vision/src/commonTest/kotlin/org/freevia/rubikbuddy/vision/
   ```
   Migrate Truth → kotlin.test in all moved test files (same pattern as Task 2, Step 3).
 
@@ -346,7 +346,7 @@ This module has zero Android dependencies — it's the easiest KMP conversion.
   }
 
   android {
-      namespace = "com.xmelon.rubik_solver.vision"
+      namespace = "org.freevia.rubikbuddy.vision"
       compileSdk = 36
       defaultConfig { minSdk = 28 }
       compileOptions {
@@ -387,14 +387,14 @@ The solver introduces `expect`/`actual` — common code declares the contract, p
 - [ ] **Step 1: Move SolveResult and existing solver to commonMain**
 
   ```bash
-  mkdir -p rubik-solver/src/commonMain/kotlin/com/xmelon/rubik_solver/solver
-  mkdir -p rubik-solver/src/androidMain/kotlin/com/xmelon/rubik_solver/solver
+  mkdir -p rubik-solver/src/commonMain/kotlin/org/freevia/rubikbuddy/solver
+  mkdir -p rubik-solver/src/androidMain/kotlin/org/freevia/rubikbuddy/solver
   mkdir -p rubik-solver/src/androidMain/java/cs/min2phase
-  mkdir -p rubik-solver/src/iosMain/kotlin/com/xmelon/rubik_solver/solver
+  mkdir -p rubik-solver/src/iosMain/kotlin/org/freevia/rubikbuddy/solver
 
   # SolveResult has no platform code — goes to commonMain unchanged
-  mv rubik-solver/src/main/kotlin/com/xmelon/rubik_solver/solver/SolveResult.kt \
-     rubik-solver/src/commonMain/kotlin/com/xmelon/rubik_solver/solver/
+  mv rubik-solver/src/main/kotlin/org/freevia/rubikbuddy/solver/SolveResult.kt \
+     rubik-solver/src/commonMain/kotlin/org/freevia/rubikbuddy/solver/
 
   # Java min2phase sources move to androidMain java source set
   mv rubik-solver/src/main/java/cs/min2phase/*.java \
@@ -405,9 +405,9 @@ The solver introduces `expect`/`actual` — common code declares the contract, p
 
   Move the existing test to commonTest first:
   ```bash
-  mkdir -p rubik-solver/src/commonTest/kotlin/com/xmelon/rubik_solver/solver
-  mv rubik-solver/src/test/kotlin/com/xmelon/rubik_solver/solver/CubeSolverTest.kt \
-     rubik-solver/src/commonTest/kotlin/com/xmelon/rubik_solver/solver/
+  mkdir -p rubik-solver/src/commonTest/kotlin/org/freevia/rubikbuddy/solver
+  mv rubik-solver/src/test/kotlin/org/freevia/rubikbuddy/solver/CubeSolverTest.kt \
+     rubik-solver/src/commonTest/kotlin/org/freevia/rubikbuddy/solver/
   ```
   Migrate assertions from Truth → kotlin.test (same pattern as Task 2).
 
@@ -416,11 +416,11 @@ The solver introduces `expect`/`actual` — common code declares the contract, p
 
 - [ ] **Step 3: Create the expect declaration in commonMain**
 
-  Create `rubik-solver/src/commonMain/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt`:
+  Create `rubik-solver/src/commonMain/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.solver
+  package org.freevia.rubikbuddy.solver
 
-  import com.xmelon.rubik_solver.model.CubeState
+  import org.freevia.rubikbuddy.model.CubeState
 
   expect object CubeSolver {
       fun initialize()
@@ -430,14 +430,14 @@ The solver introduces `expect`/`actual` — common code declares the contract, p
 
 - [ ] **Step 4: Create the Android actual**
 
-  Create `rubik-solver/src/androidMain/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt`:
+  Create `rubik-solver/src/androidMain/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.solver
+  package org.freevia.rubikbuddy.solver
 
-  import com.xmelon.rubik_solver.model.CubeColor
-  import com.xmelon.rubik_solver.model.CubeState
-  import com.xmelon.rubik_solver.model.Face
-  import com.xmelon.rubik_solver.model.Move
+  import org.freevia.rubikbuddy.model.CubeColor
+  import org.freevia.rubikbuddy.model.CubeState
+  import org.freevia.rubikbuddy.model.Face
+  import org.freevia.rubikbuddy.model.Move
   import cs.min2phase.Search
   import kotlinx.coroutines.Dispatchers
   import kotlinx.coroutines.withContext
@@ -477,11 +477,11 @@ The solver introduces `expect`/`actual` — common code declares the contract, p
 
 - [ ] **Step 5: Create the iOS stub actual**
 
-  Create `rubik-solver/src/iosMain/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt`:
+  Create `rubik-solver/src/iosMain/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.solver
+  package org.freevia.rubikbuddy.solver
 
-  import com.xmelon.rubik_solver.model.CubeState
+  import org.freevia.rubikbuddy.model.CubeState
 
   // Stub — wired to min2phaseCXX in Task 5
   actual object CubeSolver {
@@ -730,12 +730,12 @@ This task builds the C++ solver as an XCFramework and connects it to the `iosMai
 
 - [ ] **Step 8: Replace the iOS stub with real implementation**
 
-  Replace `rubik-solver/src/iosMain/kotlin/com/xmelon/rubik_solver/solver/CubeSolver.kt`:
+  Replace `rubik-solver/src/iosMain/kotlin/org/freevia/rubikbuddy/solver/CubeSolver.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.solver
+  package org.freevia.rubikbuddy.solver
 
-  import com.xmelon.rubik_solver.model.CubeState
-  import com.xmelon.rubik_solver.model.Move
+  import org.freevia.rubikbuddy.model.CubeState
+  import org.freevia.rubikbuddy.model.Move
   import kotlinx.coroutines.Dispatchers
   import kotlinx.coroutines.withContext
   import kotlinx.coroutines.withTimeoutOrNull
@@ -868,10 +868,10 @@ This is the largest structural change. The Android app still works identically a
   }
 
   android {
-      namespace = "com.xmelon.rubik_solver"
+      namespace = "org.freevia.rubikbuddy"
       compileSdk = 36
       defaultConfig {
-          applicationId = "com.xmelon.rubik_solver"
+          applicationId = "org.freevia.rubikbuddy"
           minSdk = 28
           targetSdk = 36
           versionCode = 1
@@ -927,30 +927,30 @@ This is the largest structural change. The Android app still works identically a
 - [ ] **Step 1: Create directory structure**
 
   ```bash
-  mkdir -p composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/ui
-  mkdir -p composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver
-  mkdir -p composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver
+  mkdir -p composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/ui
+  mkdir -p composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy
+  mkdir -p composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy
   mkdir -p composeApp/src/commonMain/composeResources/values
   ```
 
 - [ ] **Step 2: Create PlatformLog.kt expect/actual**
 
-  Create `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/PlatformLog.kt`:
+  Create `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/PlatformLog.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
 
   expect fun platformLog(tag: String, msg: String)
   ```
 
-  Create `composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/PlatformLog.kt`:
+  Create `composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/PlatformLog.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   actual fun platformLog(tag: String, msg: String) { android.util.Log.i(tag, msg) }
   ```
 
-  Create `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/PlatformLog.kt`:
+  Create `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/PlatformLog.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   import platform.Foundation.NSLog
   actual fun platformLog(tag: String, msg: String) { NSLog("$tag: $msg") }
   ```
@@ -961,16 +961,16 @@ This is the largest structural change. The Android app still works identically a
   # Move all UI files that have no Android-specific imports:
   for f in Math3D RenderingConstants ScreenFooters ScreenHeaders ScreenProgressBar \
             CubeColors FaceColorOverrides Cube3DView; do
-    mv composeApp/src/main/kotlin/com/xmelon/rubik_solver/ui/${f}.kt \
-       composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/ui/
+    mv composeApp/src/main/kotlin/org/freevia/rubikbuddy/ui/${f}.kt \
+       composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/ui/
   done
   ```
 
 - [ ] **Step 4: Move MainScreen.kt to commonMain, fix Android-only imports**
 
   ```bash
-  mv composeApp/src/main/kotlin/com/xmelon/rubik_solver/ui/MainScreen.kt \
-     composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/ui/
+  mv composeApp/src/main/kotlin/org/freevia/rubikbuddy/ui/MainScreen.kt \
+     composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/ui/
   ```
 
   `MainScreen.kt` has two Android-only imports that must be removed or abstracted:
@@ -978,18 +978,18 @@ This is the largest structural change. The Android app still works identically a
   **a) `rememberLauncherForActivityResult`** — from `androidx.activity:activity-compose`, Android-only.
   Extract the camera permission request into `expect`/`actual`:
 
-  Create `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  Create `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   import androidx.compose.runtime.Composable
 
   @Composable
   expect fun rememberCameraPermissionState(onResult: (Boolean) -> Unit): () -> Unit
   ```
 
-  Create `composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  Create `composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   import android.Manifest
   import androidx.activity.compose.rememberLauncherForActivityResult
   import androidx.activity.result.contract.ActivityResultContracts
@@ -1004,9 +1004,9 @@ This is the largest structural change. The Android app still works identically a
   }
   ```
 
-  Create `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  Create `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   import androidx.compose.runtime.Composable
   import platform.AVFoundation.*
 
@@ -1025,19 +1025,19 @@ This is the largest structural change. The Android app still works identically a
 
   > **Note:** `CameraPermission.kt` files were created in Step 4. **Append** to them — do not recreate.
 
-  Append to `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  Append to `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
   expect fun checkCameraPermission(): Boolean
   ```
 
-  Append to `composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  Append to `composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
   // Permission status check. Returning true is safe here — the composable launcher
   // in rememberCameraPermissionState above handles the actual Android permission flow.
   actual fun checkCameraPermission(): Boolean = true
   ```
 
-  Append to `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  Append to `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
   // platform.AVFoundation.* already imported above
   actual fun checkCameraPermission(): Boolean =
@@ -1049,13 +1049,13 @@ This is the largest structural change. The Android app still works identically a
 
 - [ ] **Step 6: Create CameraPreview expect declaration in commonMain**
 
-  Create `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`:
+  Create `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.ui
+  package org.freevia.rubikbuddy.ui
 
   import androidx.compose.runtime.Composable
   import androidx.compose.ui.Modifier
-  import com.xmelon.rubik_solver.vision.FrameAnalyzer
+  import org.freevia.rubikbuddy.vision.FrameAnalyzer
 
   @Composable
   expect fun CameraPreviewView(
@@ -1066,20 +1066,20 @@ This is the largest structural change. The Android app still works identically a
 
   Move the existing CameraX code to androidMain:
   ```bash
-  mv composeApp/src/main/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt \
-     composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/ui/
+  mv composeApp/src/main/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt \
+     composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/ui/
   ```
 
   Add `actual` keyword to the existing `@Composable fun CameraPreviewView(...)` in the androidMain file.
 
   Create iOS stub (full implementation in Task 8):
-  `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`:
+  `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.ui
+  package org.freevia.rubikbuddy.ui
   import androidx.compose.material3.Text
   import androidx.compose.runtime.Composable
   import androidx.compose.ui.Modifier
-  import com.xmelon.rubik_solver.vision.FrameAnalyzer
+  import org.freevia.rubikbuddy.vision.FrameAnalyzer
 
   @Composable
   actual fun CameraPreviewView(analyzer: FrameAnalyzer, modifier: Modifier) {
@@ -1089,9 +1089,9 @@ This is the largest structural change. The Android app still works identically a
 
 - [ ] **Step 7: Extract App.kt and HomeScreen.kt from MainActivity**
 
-  Create `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/App.kt`:
+  Create `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/App.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
 
   import androidx.compose.material3.MaterialTheme
   import androidx.compose.material3.Scaffold
@@ -1113,7 +1113,7 @@ This is the largest structural change. The Android app still works identically a
   }
   ```
 
-  In `composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/MainActivity.kt`:
+  In `composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/MainActivity.kt`:
   ```kotlin
   class MainActivity : ComponentActivity() {
       private val vm: AppViewModel by viewModels {
@@ -1132,7 +1132,7 @@ This is the largest structural change. The Android app still works identically a
   }
   ```
 
-  In `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/MainViewController.kt`:
+  In `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/MainViewController.kt`:
   ```kotlin
   fun MainViewController() = ComposeUIViewController {
       val vm = remember { AppViewModel(CubeFrameAnalyzer()) }
@@ -1140,14 +1140,14 @@ This is the largest structural change. The Android app still works identically a
   }
   ```
 
-  Create `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/HomeScreen.kt`:
+  Create `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/HomeScreen.kt`:
   Extract the `HomeScreen` composable function from `MainActivity.kt` into this file unchanged.
 
 - [ ] **Step 8: Move AppViewModel.kt to commonMain and change analyzer type**
 
   ```bash
-  mv composeApp/src/main/kotlin/com/xmelon/rubik_solver/AppViewModel.kt \
-     composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/
+  mv composeApp/src/main/kotlin/org/freevia/rubikbuddy/AppViewModel.kt \
+     composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/
   ```
 
   **Critical:** `AppViewModel` currently has `val analyzer = CubeFrameAnalyzer()` — `CubeFrameAnalyzer` is Android-only and cannot be referenced in `commonMain`. Change it to use the `FrameAnalyzer` interface:
@@ -1165,9 +1165,9 @@ This is the largest structural change. The Android app still works identically a
 
   Replace `android.util.Log.i(TAG, msg)` with `platformLog(TAG, msg)`.
   Replace `BuildConfig.DEBUG` with a compile-time constant: create
-  `composeApp/src/commonMain/kotlin/com/xmelon/rubik_solver/BuildConfig.kt`:
+  `composeApp/src/commonMain/kotlin/org/freevia/rubikbuddy/BuildConfig.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   expect val isDebugBuild: Boolean
   ```
   Android actual: `actual val isDebugBuild: Boolean = BuildConfig.DEBUG`
@@ -1182,7 +1182,7 @@ This is the largest structural change. The Android app still works identically a
   ```kotlin
   // Before:
   import androidx.compose.ui.res.stringResource
-  import com.xmelon.rubik_solver.R
+  import org.freevia.rubikbuddy.R
   stringResource(R.string.scan_button_edit)
 
   // After:
@@ -1198,10 +1198,10 @@ This is the largest structural change. The Android app still works identically a
 
 - [ ] **Step 10: Strip MainActivity down to Android entry point only**
 
-  Replace `composeApp/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt` with the
+  Replace `composeApp/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt` with the
   androidMain version — it should now just be:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
 
   import android.os.Bundle
   import androidx.activity.ComponentActivity
@@ -1214,8 +1214,8 @@ This is the largest structural change. The Android app still works identically a
 
   Move this file:
   ```bash
-  mv composeApp/src/main/kotlin/com/xmelon/rubik_solver/MainActivity.kt \
-     composeApp/src/androidMain/kotlin/com/xmelon/rubik_solver/
+  mv composeApp/src/main/kotlin/org/freevia/rubikbuddy/MainActivity.kt \
+     composeApp/src/androidMain/kotlin/org/freevia/rubikbuddy/
   ```
 
 - [ ] **Step 11: Build and verify Android app unchanged**
@@ -1242,18 +1242,18 @@ This is the largest structural change. The Android app still works identically a
 ### Task 8: Implement iOS camera with AVFoundation
 
 **Files:**
-- Modify: `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`
+- Modify: `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`
 - Modify: `composeApp/src/iosMain/cinterop/avfoundation.def` (if needed — AVFoundation is usually available via `platform.AVFoundation`)
 
 AVFoundation is available in Kotlin/Native iOS targets via the built-in `platform.AVFoundation` package — no cinterop needed.
 
 - [ ] **Step 1: Implement iOS CubeFrameAnalyzer in iosMain**
 
-  Create `rubik-vision/src/iosMain/kotlin/com/xmelon/rubik_solver/vision/CubeFrameAnalyzer.kt`:
+  Create `rubik-vision/src/iosMain/kotlin/org/freevia/rubikbuddy/vision/CubeFrameAnalyzer.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.vision
+  package org.freevia.rubikbuddy.vision
 
-  import com.xmelon.rubik_solver.model.CubeColor
+  import org.freevia.rubikbuddy.model.CubeColor
   import platform.AVFoundation.*
   import platform.CoreVideo.CVPixelBufferRef
   import kotlinx.coroutines.flow.MutableStateFlow
@@ -1290,15 +1290,15 @@ AVFoundation is available in Kotlin/Native iOS targets via the built-in `platfor
 
 - [ ] **Step 2: Implement CameraPreviewView actual for iOS**
 
-  Replace `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/ui/CameraPreview.kt`:
+  Replace `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/ui/CameraPreview.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver.ui
+  package org.freevia.rubikbuddy.ui
 
   import androidx.compose.runtime.Composable
   import androidx.compose.ui.Modifier
   import androidx.compose.ui.interop.UIKitView
-  import com.xmelon.rubik_solver.vision.CubeFrameAnalyzer
-  import com.xmelon.rubik_solver.vision.FrameAnalyzer
+  import org.freevia.rubikbuddy.vision.CubeFrameAnalyzer
+  import org.freevia.rubikbuddy.vision.FrameAnalyzer
   import platform.AVFoundation.*
   import platform.UIKit.UIView
   import platform.QuartzCore.CALayer
@@ -1346,9 +1346,9 @@ AVFoundation is available in Kotlin/Native iOS targets via the built-in `platfor
 
 - [ ] **Step 3: Handle camera permission on iOS**
 
-  In `composeApp/src/iosMain/kotlin/com/xmelon/rubik_solver/CameraPermission.kt`:
+  In `composeApp/src/iosMain/kotlin/org/freevia/rubikbuddy/CameraPermission.kt`:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
   import platform.AVFoundation.*
 
   actual fun checkCameraPermission(): Boolean =
@@ -1434,7 +1434,7 @@ This is the thin Swift shell that hosts the shared Compose UI.
 
   This file was already created in Task 7 Step 7. Verify it reads exactly:
   ```kotlin
-  package com.xmelon.rubik_solver
+  package org.freevia.rubikbuddy
 
   import androidx.compose.runtime.remember
   import androidx.compose.ui.window.ComposeUIViewController
@@ -1474,7 +1474,7 @@ This is the thin Swift shell that hosts the shared Compose UI.
      ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
      ```
   4. Set minimum deployment target to iOS 15.0
-  5. Set bundle ID (e.g., `com.xmelon.rubikSolver`)
+  5. Set bundle ID (e.g., `com.freevia.rubikSolver`)
 
 - [ ] **Step 7: Build and run on iOS Simulator**
 
