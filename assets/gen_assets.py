@@ -1,5 +1,5 @@
 """
-Generate Play Store visual assets for RubikSolver:
+Generate Play Store visual assets for Rubik Buddy:
   - store/icon_512.png          (Play Store icon, 512×512)
   - store/feature_graphic.png   (Feature graphic, 1024×500)
   - store/ic_launcher_fg.png    (Adaptive icon foreground, 108dp @ xxxhdpi = 432px)
@@ -160,13 +160,13 @@ def make_icon(size=512):
     draw_cube_isometric(draw, vf_cx, vf_cy,
                         cube_size, make_top_face(), make_left_face(), make_right_face())
 
-    # Small "RUBIK SOLVER" label below viewfinder
+    # Small "RUBIK BUDDY" label below viewfinder
     label_y = vf_cy + vf_size//2 + int(size*0.03)
     try:
         font = ImageFont.truetype("arial.ttf", int(size*0.055))
     except Exception:
         font = ImageFont.load_default()
-    text = "RUBIK SOLVER"
+    text = "RUBIK BUDDY"
     bbox = draw.textbbox((0,0), text, font=font)
     tw = bbox[2] - bbox[0]
     draw.text((size//2 - tw//2, label_y), text, font=font, fill=ACCENT)
@@ -253,7 +253,7 @@ def make_feature(w=1024, h=500):
         font_tag  = font_big
 
     draw.text((tx, int(h*0.15)), "RUBIK",  font=font_big, fill=WHITE)
-    draw.text((tx, int(h*0.37)), "SOLVER", font=font_big, fill=ACCENT)
+    draw.text((tx, int(h*0.37)), "BUDDY", font=font_big, fill=ACCENT)
 
     tag = "Scan · Solve · Enjoy"
     draw.text((tx, int(h*0.72)), tag, font=font_sub, fill=(180, 200, 220))
