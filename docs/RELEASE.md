@@ -1,7 +1,7 @@
 # Releasing Rubik Buddy to Google Play
 
 Application id: `org.freevia.rubikbuddy`. This follows the same process as the other Freevia
-apps (for example Sudoku Buddy): one shared Freevia upload key, signing material supplied
+apps (for example Sudoku Buddy): one upload key per app, signing material supplied
 through environment variables, and a `play-submission` folder kept outside the repository.
 No secret ever lives in this repository.
 
@@ -15,15 +15,25 @@ No secret ever lives in this repository.
 
 ## Signing
 
-Play App Signing is used: Google holds the app signing key and the Freevia upload key signs
-the bundle. The upload key is the existing Freevia keystore, kept on the maintainer's
-machine under `C:\Users\anton\Documents\Freevia-secure\` (outside the repository), with
-credentials stored DPAPI-protected next to it and in the password manager. Its certificate
-SHA-256 is public information and is how an upload is checked against Play's registered
-upload certificate:
+Play App Signing is used: Google holds the app signing key and an upload key signs the
+bundle. Each Freevia app has its OWN upload key. Play rejects a bundle signed with a key that
+is already used by another app ("signed with a key that is also used to sign APKs delivered
+to users"), so never reuse another app's keystore.
+
+Rubik Buddy's upload key lives outside the repository, by the same convention as Sudoku Buddy:
+
+- `C:\Users\anton\Documents\Freevia-secure\RubikBuddy\recovered\rubik-buddy-upload.jks`
+- `C:\Users\anton\Documents\Freevia-secure\RubikBuddy\recovered\credentials.json.dpapi`
+  (keystore password, key alias, key password; DPAPI-encrypted for the current Windows user)
+- `C:\Users\anton\Documents\Freevia-secure\RubikBuddy\backup\rubik-buddy-upload.jks.dpapi`
+  (DPAPI-protected copy of the keystore. DPAPI files only open for this Windows user on this
+  machine, so also copy the keystore to encrypted media kept elsewhere and record the
+  passwords in the password manager.)
+
+Upload certificate SHA-256 (public; this is what Play registers on first upload):
 
 ```
-A5:10:D8:2B:87:E7:06:9B:53:D5:20:BE:CA:91:5B:35:2A:E9:6C:EA:85:0C:68:CA:00:61:17:E3:5D:75:D3:E5
+D8:0D:68:04:11:22:73:BB:50:97:84:AA:CD:AC:BC:DB:86:9D:70:CD:09:FC:EF:AC:10:0D:0A:B1:B2:5B:14:5C
 ```
 
 The build reads these environment variables (or the Gradle properties in brackets, set in
@@ -45,10 +55,10 @@ Decrypt the credentials into the current process only (never print or save them)
 
 ```powershell
 Add-Type -AssemblyName System.Security
-$dir = 'C:\Users\anton\Documents\Freevia-secure\SudokuBuddy\recovered'
+$dir = 'C:\Users\anton\Documents\Freevia-secure\RubikBuddy\recovered'
 $c = [Text.Encoding]::UTF8.GetString([Security.Cryptography.ProtectedData]::Unprotect(
        [IO.File]::ReadAllBytes("$dir\credentials.json.dpapi"), $null, 'CurrentUser')) | ConvertFrom-Json
-$env:SIGNING_KEYSTORE          = "$dir\sudoku-buddy-release.jks"
+$env:SIGNING_KEYSTORE          = "$dir\rubik-buddy-upload.jks"
 $env:SIGNING_KEYSTORE_PASSWORD = $c.keystorePassword
 $env:SIGNING_KEY_ALIAS         = $c.keyAlias
 $env:SIGNING_KEY_PASSWORD      = $c.keyPassword
@@ -85,5 +95,5 @@ Copy the signed bundle and listing material to
 ## Upload
 
 In Play Console create the app (package `org.freevia.rubikbuddy`), enrol in Play App
-Signing with the upload key above, complete the declarations from `docs/play-listing.md`,
+Signing with this app's own upload key, complete the declarations from `docs/play-listing.md`,
 and upload the `.aab` to Internal testing first, then promote the tested bundle.
