@@ -14,6 +14,20 @@ no ads, no analytics, and no image ever leaves the device.
 [Support](.github/SUPPORT.md) ·
 [Security](SECURITY.md)
 
+**Status:** the app is submitted to Google Play and is in review, so there is no store
+listing yet. Updates and the Play link will appear on the [website](https://freevia.org/rubik-buddy/).
+
+## Screenshots
+
+Real screens from an Android phone with a real cube.
+
+<p>
+  <img src="assets/play/screenshots/01-scan.png" alt="Scanning the yellow face with the tile guide over the camera view" width="190">
+  <img src="assets/play/screenshots/02-initial-position.png" alt="How to hold the cube before the solution starts" width="190">
+  <img src="assets/play/screenshots/03-solution-step-1.png" alt="Move 2 of 19 shown on the 3D cube" width="190">
+  <img src="assets/play/screenshots/04-solution-step-2.png" alt="Move 4 of 19, a counter-clockwise front turn" width="190">
+</p>
+
 ## Features
 
 - Guided scan of all six faces, one rotation at a time.
@@ -30,7 +44,9 @@ Frames from CameraX are analysed on the device by the `rubik-vision` module:
 2. The six centre stickers establish the white balance and the reference hue of each colour
    for the current lighting.
 3. Every other sticker is classified by hue angle (`atan2(b, a)`) against those references,
-   which keeps orange/red and yellow/white apart even when brightness or saturation varies.
+   which keeps orange/red and yellow apart even when brightness or saturation varies. White
+   has no useful hue, so a tile is white when it has very low chroma, or is light with only a
+   mild colour cast (this stops white tiles under tinted light being read as blue).
 4. The assembled 54-sticker state is checked by `rubik-model` for impossible cubes (wrong
    colour counts, twisted corners, parity) before it is handed to the solver.
 
