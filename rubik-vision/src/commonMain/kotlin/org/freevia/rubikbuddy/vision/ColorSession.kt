@@ -12,7 +12,8 @@ import kotlin.math.sqrt
  * Session-adaptive color classifier for Rubik's Cube facelets.
  *
  * Classification uses circular hue-angle distance (atan2(b,a)) — fully chroma-invariant.
- * WHITE is detected by low chroma before any hue scoring.
+ * WHITE is detected before any hue scoring: low chroma, or a light tile with only a mild
+ * color cast (see [isWhite]) so tiles under cool or warm light are not mistaken for blue/yellow.
  *
  * Calibration: a flat map of confirmed tile measurements keyed by (Face, tileIndex).
  * [commitFace] replaces all 9 entries for a face and rebuilds color models.
@@ -27,6 +28,9 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
         const val NON_CENTER_TILE_WEIGHT  = 1.0f
         /** Chroma sqrt(a²+b²) below this → WHITE, regardless of hue. */
         const val WHITE_CHROMA_THRESHOLD  = 15.0f
+        /** Tiles at least this light (CIELAB L) with chroma below [WHITE_LIGHT_CHROMA_LIMIT] are WHITE. */
+        const val WHITE_LIGHT_L_MIN       = 60.0f
+        const val WHITE_LIGHT_CHROMA_LIMIT = 30.0f
         /** Hue-angle gap (degrees) below which the top-2 colors are considered ambiguous. */
         const val UNCERTAIN_GAP_THRESHOLD = 4.0f
         /** Hue-angle gap (degrees) that maps to confidence 1.0. */
@@ -66,8 +70,7 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
      * Tiles with gap < [UNCERTAIN_GAP_THRESHOLD] are ambiguous.
      */
     fun classify(lab: FloatArray): Pair<CubeColor, Float> {
-        val chroma = sqrt((lab[1] * lab[1] + lab[2] * lab[2]).toDouble()).toFloat()
-        if (chroma < WHITE_CHROMA_THRESHOLD) return CubeColor.WHITE to 1.0f
+        if (isWhite(lab)) return CubeColor.WHITE to 1.0f
 
         val tileH = hueDeg(lab)
         val ranked = CHROMATIC_COLORS.map { color ->
@@ -212,11 +215,21 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
 
     /** All 6 colors sorted by hue-angle score ascending (best first). WHITE always sorted by chroma. */
     private fun allRanked(lab: FloatArray): List<CubeColor> {
-        val chroma = sqrt((lab[1] * lab[1] + lab[2] * lab[2]).toDouble()).toFloat()
         val tileH = hueDeg(lab)
         val chromatic = CHROMATIC_COLORS.sortedBy { color -> angularDist(tileH, hueModel(color)) }
-        return if (chroma < WHITE_CHROMA_THRESHOLD) listOf(CubeColor.WHITE) + chromatic
+        return if (isWhite(lab)) listOf(CubeColor.WHITE) + chromatic
         else chromatic + listOf(CubeColor.WHITE)
+    }
+
+    /**
+     * WHITE if chroma is very low, or if the tile is light with a mild color cast. Saturated
+     * blue/green/red/orange tiles are far darker (blue L<40) or far more chromatic (yellow C>45),
+     * so a light low-chroma tile under tinted lighting is still white.
+     */
+    private fun isWhite(lab: FloatArray): Boolean {
+        val chroma = sqrt((lab[1] * lab[1] + lab[2] * lab[2]).toDouble()).toFloat()
+        return chroma < WHITE_CHROMA_THRESHOLD ||
+            (lab[0] >= WHITE_LIGHT_L_MIN && chroma < WHITE_LIGHT_CHROMA_LIMIT)
     }
 
     /** For testing only: returns mean hue (degrees) from session model for [color], or null if using prior. */

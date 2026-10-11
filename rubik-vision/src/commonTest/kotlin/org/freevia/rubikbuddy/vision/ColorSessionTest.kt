@@ -37,6 +37,33 @@ class ColorSessionTest {
         assertTrue(color != CubeColor.WHITE)
     }
 
+    // Measured on a Pixel-class phone under cool light (2026-10-11): white tiles had L~70-77,
+    // chroma 18-20 and were misread as BLUE by the hue scoring; real blue tiles had L<=39.
+    @Test fun `classify light bluish-grey tile under cool light as WHITE not BLUE`() {
+        val session = ColorSession()
+        assertEquals(CubeColor.WHITE, session.classify(floatArrayOf(76f, -8f, -18f)).first)
+        assertEquals(CubeColor.WHITE, session.classify(floatArrayOf(70f, -7f, -17f)).first)
+        assertEquals(CubeColor.WHITE, session.classify(floatArrayOf(77f, -7f, -18f)).first)
+    }
+
+    @Test fun `classify light warm-cast tile as WHITE not YELLOW`() {
+        val session = ColorSession()
+        assertEquals(CubeColor.WHITE, session.classify(floatArrayOf(72f, 3f, 20f)).first)
+    }
+
+    @Test fun `classify real blue tiles stay BLUE`() {
+        val session = ColorSession()
+        assertEquals(CubeColor.BLUE, session.classify(floatArrayOf(22f, 24f, -50f)).first)
+        assertEquals(CubeColor.BLUE, session.classify(floatArrayOf(39f, 10f, -39f)).first)
+        assertEquals(CubeColor.BLUE, session.classify(floatArrayOf(30f, 15f, -41f)).first)
+    }
+
+    @Test fun `classify real yellow tile stays YELLOW`() {
+        val session = ColorSession()
+        assertEquals(CubeColor.YELLOW, session.classify(floatArrayOf(61f, 6f, 61f)).first)
+        assertEquals(CubeColor.YELLOW, session.classify(floatArrayOf(63f, 4f, 48f)).first)
+    }
+
     // ---- classify: chromatic priors ----
 
     @Test fun `classify RED prior lab as RED`() {
