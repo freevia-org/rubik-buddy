@@ -13,11 +13,17 @@ plugins {
 // ── Optional Firebase ──────────────────────────────────────────────────────────
 // The shipped app contains no Firebase SDK (no analytics, no crash reporting). Firebase
 // App Distribution is only a developer upload tool. Contributors and CI do not need it:
-// the plugins are applied only when a local, git-ignored google-services.json exists
+// the plugins are applied only when a local, git-ignored google-services.json for this
+// application id exists
 // (see composeApp/google-services.json.example). Credentials for uploading come from
 // the FIREBASE_CREDENTIALS_FILE environment variable or the firebaseCredentialsFile
 // Gradle property, never from the repository.
-val hasFirebaseConfig = file("google-services.json").exists()
+val appId = "org.freevia.rubikbuddy"
+val hasFirebaseConfig = file("google-services.json").let { f ->
+    // Skip the plugins when the file is absent or was generated for another package name;
+    // the google-services plugin would otherwise fail the build on a mismatch.
+    f.exists() && f.readText().contains("\"package_name\": \"$appId\"")
+}
 if (hasFirebaseConfig) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.appdistribution")
@@ -28,7 +34,7 @@ val firebaseCredentials: String? =
         .orNull
 
 compose.resources {
-    packageOfResClass = "com.xmelon.rubik_solver.generated.resources"
+    packageOfResClass = "org.freevia.rubikbuddy.generated.resources"
     publicResClass = true
 }
 
@@ -74,11 +80,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.xmelon.rubik_solver"
+    namespace = "org.freevia.rubikbuddy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.xmelon.rubik_solver"
+        applicationId = appId
         minSdk = 28
         targetSdk = 36
         // CI and Play uploads may override with VERSION_CODE; default is the commit count.

@@ -9,7 +9,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.xmelon.rubik_solver.vision"
+        namespace = "org.freevia.rubikbuddy.vision"
         compileSdk = 36
         minSdk = 28
         compilerOptions {

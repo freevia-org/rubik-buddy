@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RubikSolver"
+rootProject.name = "RubikBuddy"
 
 include(":composeApp")
 project(":composeApp").projectDir = file("composeApp")

@@ -8,7 +8,7 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
-        "android_client_info": { "package_name": "com.xmelon.rubik_solver" }
+        "android_client_info": { "package_name": "org.freevia.rubikbuddy" }
       },
       "oauth_client": [],
       "api_key": [ { "current_key": "REPLACE_WITH_YOUR_OWN_KEY" } ],

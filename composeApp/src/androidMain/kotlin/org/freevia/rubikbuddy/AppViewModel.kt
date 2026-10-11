@@ -1,0 +1,239 @@
+package org.freevia.rubikbuddy
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import org.freevia.rubikbuddy.model.CubeColor
+import org.freevia.rubikbuddy.model.CubeState
+import org.freevia.rubikbuddy.model.Face
+import org.freevia.rubikbuddy.model.Move
+import org.freevia.rubikbuddy.solver.CubeSolver
+import org.freevia.rubikbuddy.solver.SolveResult
+import org.freevia.rubikbuddy.ui.ProgressPhase
+import org.freevia.rubikbuddy.ui.buildEffectiveWbRgbs
+import org.freevia.rubikbuddy.ui.isFaceScanned
+import org.freevia.rubikbuddy.vision.ColorSession
+import org.freevia.rubikbuddy.vision.CubeFrameAnalyzer
+import org.freevia.rubikbuddy.vision.LabConverter
+import org.freevia.rubikbuddy.vision.ScanOrchestrator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private const val TAG = "RubikBuddy"
+private fun log(msg: String) { platformLog(TAG, msg) }
+
+/** Renders all 6 faces of a 54-element facelets array as a compact string, e.g.:
+ *  U[WWW|WWW|WWW] R[BBB|BBB|BBB] F[RRR|RRR|RRR] D[YYY|YYY|YYY] L[GGG|GGG|GGG] B[OOO|OOO|OOO] */
+private fun IntArray.toCubeStr(): String {
+    val labels = CubeColor.entries.map { it.label }
+    return Face.entries.joinToString(" ") { face ->
+        val o = face.offset
+        val rows = (0 until 9).map { i -> val v = this[o + i]; if (v < 0) '?' else labels.getOrElse(v) { '?' } }
+        "${face.name}[${rows.take(3).joinToString("")}|${rows.drop(3).take(3).joinToString("")}|${rows.drop(6).joinToString("")}]"
+    }
+}
+
+class AppViewModel : ViewModel() {
+    val colorSession = ColorSession(clock = System::currentTimeMillis)
+    val analyzer = CubeFrameAnalyzer(colorSession)
+    val orchestrator = ScanOrchestrator()
+    var currentScreen by mutableStateOf(Screen.HOME)
+
+    // -- App Mode --
+    var appMode by mutableStateOf(AppMode.SCAN)
+
+    // -- Scan State --
+    var isAwaitingAlignment by mutableStateOf(true)
+    var isViewingScanned by mutableStateOf(false)
+    var colorOverrides by mutableStateOf(mapOf<Int, CubeColor>())
+    var tileWarningColor by mutableStateOf<CubeColor?>(null)
+    var debugMode by mutableStateOf(false)
+    var dragResetKey by mutableIntStateOf(0)
+
+    // -- Solve State --
+    var isLoadingSolve by mutableStateOf(false)
+    var solveResult by mutableStateOf<SolveResult?>(null)
+    var currentStep by mutableIntStateOf(0)
+    var animIsReverse by mutableStateOf(false)
+    var moveKey by mutableIntStateOf(0)
+
+    val moves: List<Move> get() = (solveResult as? SolveResult.Success)?.moves ?: emptyList()
+    val totalMoves: Int get() = moves.size
+    val totalSteps: Int get() = totalMoves + 1
+    val isSolved: Boolean get() = currentStep > totalMoves
+
+    /** Photographed WB-corrected ARGB per CubeColor, populated as faces are confirmed. */
+    val colorPalette = mutableStateMapOf<CubeColor, Int>()
+
+    var overallProgress by mutableFloatStateOf(0f)
+    var progressPhase by mutableStateOf(ProgressPhase.IDLE)
+    var scanningFace by mutableStateOf<Face?>(null)
+    var solvingStep by mutableIntStateOf(0)
+    var solvingTotalSteps by mutableIntStateOf(0)
+
+    init {
+        // Synchronize VM progress state with orchestrator flows
+        viewModelScope.launch {
+            orchestrator.currentFaceToScan.collectLatest { face ->
+                log("FACE_CHANGE → $face")
+                scanningFace = face
+                updateScanProgress(face)
+                resetFaceUiState(face)
+            }
+        }
+        viewModelScope.launch {
+            orchestrator.isScanComplete.collectLatest { complete ->
+                log("SCAN_COMPLETE=$complete")
+                if (complete) runSolver()
+            }
+        }
+    }
+
+    private fun updateScanProgress(face: Face) {
+        val idx = ScanOrchestrator.SCAN_ORDER.indexOf(face).coerceAtLeast(0)
+        overallProgress = (idx.toFloat() / ScanOrchestrator.SCAN_ORDER.size) * 0.5f
+        progressPhase = ProgressPhase.SCANNING
+    }
+
+    fun resetFaceUiState(face: Face) {
+        colorOverrides = emptyMap()
+        tileWarningColor = null
+        isAwaitingAlignment = true
+        isViewingScanned = isFaceScanned(orchestrator.scannedFacelets.value, face)
+        log("RESET_FACE face=$face viewingScanned=$isViewingScanned cube=${orchestrator.scannedFacelets.value.toCubeStr()}")
+        analyzer.expectedCenterColor = CubeColor.expectedCenter(face)
+        analyzer.resetTemporalBuffers()
+    }
+
+    private fun runSolver() {
+        viewModelScope.launch {
+            try {
+                val state = orchestrator.buildCubeState()
+                log("SOLVER_START cube=${state.facelets.toCubeStr()}")
+                isLoadingSolve = true
+                val result = withContext(Dispatchers.Default) { CubeSolver.solve(state) }
+                log("SOLVER_DONE result=${result::class.simpleName}")
+                solveResult = result
+                currentStep = 0
+                animIsReverse = false
+                isLoadingSolve = false
+                appMode = AppMode.SOLVE
+                progressPhase = ProgressPhase.SOLVING
+                updateSolveProgress(0)
+            } catch (e: Exception) {
+                log("SOLVER_ERROR ${e.message}")
+                solveResult = SolveResult.Error(e.message ?: "Unexpected error")
+                isLoadingSolve = false
+                appMode = AppMode.SOLVE
+            }
+        }
+    }
+
+    fun updateSolveProgress(step: Int) {
+        val progress = (step.toFloat() / totalSteps).coerceIn(0f, 1f)
+        overallProgress = 0.5f + progress * 0.5f
+        solvingStep = step
+        solvingTotalSteps = totalSteps
+    }
+
+    // -- Actions --
+
+    fun resetAnalyzerBuffers() = analyzer.resetTemporalBuffers()
+    /** Reverts the given face's committed data from ColorSession. */
+    fun restoreColorCheckpoint(face: Face) = colorSession.revertFace(face)
+    /** Resets the ColorSession (clears all committed face data). */
+    fun resetSession() = colorSession.reset()
+    fun colorCycle(wb: Int, current: CubeColor): CubeColor =
+        colorSession.cycle(LabConverter.sRgbToLab(wb), current)
+    fun rankFor(wb: Int, color: CubeColor): Int =
+        colorSession.rankFor(LabConverter.sRgbToLab(wb), color)
+    fun toggleDebugMode() { debugMode = !debugMode; analyzer.debugMode = debugMode }
+
+    fun confirmFace(liveColors: List<CubeColor>, liveRgbs: IntArray, liveWbRgbs: IntArray) {
+        val face = orchestrator.currentFaceToScan.value
+        val overrideStr = if (colorOverrides.isEmpty()) "none"
+            else colorOverrides.entries.joinToString { "${it.key}→${it.value.name}" }
+        log("CONFIRM face=$face colors=${liveColors.map { it.name }} overrides=[$overrideStr]")
+        // Build correctedColors: start from live classifications, then apply:
+        //  1. Manual tile overrides (user-tapped corrections)
+        //  2. Force center to expected color (always authoritative)
+        val correctedColors = if (liveColors.size >= 9)
+            liveColors.toMutableList().also { list ->
+                colorOverrides.forEach { (ci, color) -> if (ci < list.size) list[ci] = color }
+                list[4] = CubeColor.expectedCenter(face)
+            }
+        else liveColors
+        val labs = analyzer.detectedLabs.value
+        if (labs.size == 9 && correctedColors.size == 9) {
+            colorSession.commitFace(face, correctedColors.toTypedArray(), labs)
+            log(colorSession.debugLog())
+        }
+        val effectiveWbRgbs = buildEffectiveWbRgbs(liveWbRgbs, correctedColors, colorOverrides, colorPalette)
+        orchestrator.commitCurrentFace(correctedColors, effectiveWbRgbs)
+        if (liveWbRgbs.size == 9) {
+            colorPalette[CubeColor.expectedCenter(face)] = liveWbRgbs[4]
+        }
+        log("CONFIRM cube=${orchestrator.scannedFacelets.value.toCubeStr()}")
+        isAwaitingAlignment = true
+    }
+
+    fun goNextStep() {
+        if (isSolved || solveResult !is SolveResult.Success) return
+        animIsReverse = false
+        currentStep++
+        moveKey++
+        updateSolveProgress(currentStep)
+    }
+
+    fun goPrevStep() {
+        if (currentStep == 0) {
+            val lastFace = ScanOrchestrator.SCAN_ORDER.last()
+            log("GO_BACK_TO_SCAN → $lastFace")
+            appMode = AppMode.SCAN
+            orchestrator.jumpToFace(lastFace)
+            resetFaceUiState(lastFace)
+            return
+        }
+        animIsReverse = true
+        currentStep--
+        moveKey++
+        updateSolveProgress(currentStep)
+    }
+
+    fun repeatStep() {
+        if (currentStep == 0 || isSolved) return
+        animIsReverse = false
+        moveKey++
+    }
+
+    fun restartScan() {
+        orchestrator.reset()
+        colorSession.reset()
+        analyzer.resetTemporalBuffers()
+        analyzer.expectedCenterColor = CubeColor.expectedCenter(orchestrator.currentFaceToScan.value)
+        colorPalette.clear()
+        solveResult = null
+        currentStep = 0
+        appMode = AppMode.SCAN
+        val firstFace = orchestrator.currentFaceToScan.value
+        scanningFace = firstFace
+        updateScanProgress(firstFace)
+        solvingStep = 0
+        solvingTotalSteps = 0
+    }
+
+    fun resetProgress() {
+        overallProgress = 0f
+        progressPhase = ProgressPhase.IDLE
+        scanningFace = null
+        solvingStep = 0
+        solvingTotalSteps = 0
+    }
+}

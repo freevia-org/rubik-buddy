@@ -13,13 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RubicSolver">
+        android:theme="@style/Theme.RubikBuddy">
 
         <activity
-            android:name="com.xmelon.rubik_solver.MainActivity"
+            android:name="org.freevia.rubikbuddy.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.RubicSolver">
+            android:theme="@style/Theme.RubikBuddy">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

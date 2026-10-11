@@ -4,4 +4,4 @@
 -keep class cs.min2phase.** { *; }
 
 # Keep Rubik model classes used via reflection or serialization
--keep class com.xmelon.rubik_solver.model.** { *; }
+-keep class org.freevia.rubikbuddy.model.** { *; }
