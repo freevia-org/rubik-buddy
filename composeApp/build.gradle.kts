@@ -5,9 +5,27 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.firebase.appdistribution)
+    // Firebase plugins are applied conditionally below (see "Optional Firebase").
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.firebase.appdistribution) apply false
 }
+
+// ── Optional Firebase ──────────────────────────────────────────────────────────
+// The shipped app contains no Firebase SDK (no analytics, no crash reporting). Firebase
+// App Distribution is only a developer upload tool. Contributors and CI do not need it:
+// the plugins are applied only when a local, git-ignored google-services.json exists
+// (see composeApp/google-services.json.example). Credentials for uploading come from
+// the FIREBASE_CREDENTIALS_FILE environment variable or the firebaseCredentialsFile
+// Gradle property, never from the repository.
+val hasFirebaseConfig = file("google-services.json").exists()
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.appdistribution")
+}
+val firebaseCredentials: String? =
+    providers.gradleProperty("firebaseCredentialsFile")
+        .orElse(providers.environmentVariable("FIREBASE_CREDENTIALS_FILE"))
+        .orNull
 
 compose.resources {
     packageOfResClass = "com.xmelon.rubik_solver.generated.resources"
@@ -63,10 +81,31 @@ android {
         applicationId = "com.xmelon.rubik_solver"
         minSdk = 28
         targetSdk = 36
-        versionCode = providers.exec {
-            commandLine("git", "rev-list", "--count", "HEAD")
-        }.standardOutput.asText.get().trim().toInt()
+        // CI and Play uploads may override with VERSION_CODE; default is the commit count.
+        versionCode = System.getenv("VERSION_CODE")?.toIntOrNull()
+            ?: runCatching {
+                providers.exec {
+                    commandLine("git", "rev-list", "--count", "HEAD")
+                }.standardOutput.asText.get().trim().toInt()
+            }.getOrDefault(1)
         versionName = "0.1.0"
+    }
+
+    // Release signing is read from the environment or Gradle properties only. Without
+    // them the release build is simply left unsigned (fine for CI and local checks).
+    // The upload key must never be committed.
+    fun signingValue(env: String, prop: String): String? =
+        System.getenv(env) ?: providers.gradleProperty(prop).orNull
+    val releaseKeystore = signingValue("SIGNING_KEYSTORE", "signing.keystore")
+    signingConfigs {
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = file(releaseKeystore)
+                storePassword = signingValue("SIGNING_KEYSTORE_PASSWORD", "signing.keystorePassword")
+                keyAlias = signingValue("SIGNING_KEY_ALIAS", "signing.keyAlias")
+                keyPassword = signingValue("SIGNING_KEY_PASSWORD", "signing.keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -76,16 +115,21 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            firebaseAppDistribution {
-                artifactType = "APK"
-                serviceCredentialsFile = "composeApp/firebase-service-account.json"
+            if (releaseKeystore != null) signingConfig = signingConfigs.getByName("release")
+            if (hasFirebaseConfig) {
+                firebaseAppDistribution {
+                    artifactType = "APK"
+                    firebaseCredentials?.let { serviceCredentialsFile = it }
+                }
             }
         }
         getByName("debug") {
-            firebaseAppDistribution {
-                artifactType = "APK"
-                serviceCredentialsFile = "composeApp/firebase-service-account.json"
-                testers = System.getenv("FIREBASE_TESTERS") ?: ""
+            if (hasFirebaseConfig) {
+                firebaseAppDistribution {
+                    artifactType = "APK"
+                    firebaseCredentials?.let { serviceCredentialsFile = it }
+                    testers = System.getenv("FIREBASE_TESTERS") ?: ""
+                }
             }
         }
     }

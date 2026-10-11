@@ -1,10 +1,12 @@
 name: iOS
 
+# Manual only: the iOS port is experimental and has not been verified green on CI.
+# Run it from the Actions tab (workflow_dispatch) when working on iOS.
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:

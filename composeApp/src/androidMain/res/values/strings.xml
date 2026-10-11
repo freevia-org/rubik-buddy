@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Rubik Solver</string>
+    <string name="app_name">Rubik Buddy</string>
 
     <!-- ── Face / color names ─────────────────────────────────────────────
          Used wherever a face's center color is shown to the user.
@@ -12,7 +12,7 @@
     <string name="color_green">Green</string>
 
     <!-- ── Home screen ───────────────────────────────────────────────────── -->
-    <string name="home_title">Rubik\'s Solver</string>
+    <string name="home_title">Rubik Buddy</string>
     <string name="home_subtitle">Scan &amp; solve the standard 3×3 Rubik\'s cube. Have the cube oriented as shown below</string>
     <string name="home_status_loading">Loading…</string>
     <string name="home_status_ready">Position the yellow face as shown, then tap Scan</string>

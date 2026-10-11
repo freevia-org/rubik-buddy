@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a problem with Rubik Buddy
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are public. Please do not include personal information or photos of people. For private matters, email info@freevia.org.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: For example, 0.1.0
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: For example, Pixel 8, Android 16
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Lighting, cube brand, screenshots (after checking they contain nothing private).
