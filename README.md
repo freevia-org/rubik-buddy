@@ -14,8 +14,11 @@ no ads, no analytics, and no image ever leaves the device.
 [Support](.github/SUPPORT.md) ·
 [Security](SECURITY.md)
 
-**Status:** the app is submitted to Google Play and is in review, so there is no store
-listing yet. Updates and the Play link will appear on the [website](https://freevia.org/rubik-buddy/).
+**Google Play — Android:** [Join the internal test with an invited Google account](https://play.google.com/apps/internaltest/4701679095877744035).
+Android 0.1.0 (build 69) is available to invited testers with Android 9+
+and a camera. The production release is in Google review; the
+[public Play listing](https://play.google.com/store/apps/details?id=org.freevia.rubikbuddy)
+may not open until approval. No GitHub APK release has been published.
 
 ## Screenshots
 
