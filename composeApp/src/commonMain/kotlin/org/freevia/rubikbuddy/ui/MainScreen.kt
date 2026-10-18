@@ -1,6 +1,5 @@
 package org.freevia.rubikbuddy.ui
 
-import org.freevia.rubikbuddy.BuildConfig
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -12,10 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import org.freevia.rubikbuddy.platformDebugEnabled
 import org.freevia.rubikbuddy.AppMode
 import org.freevia.rubikbuddy.AppViewModel
 import org.freevia.rubikbuddy.checkCameraPermission
@@ -45,7 +44,7 @@ fun MainScreen(
     onBack: () -> Unit,
     onDone: () -> Unit
 ) {
-    val initialPerm = checkCameraPermission()
+    val initialPerm = org.freevia.rubikbuddy.platformIsSimulator || checkCameraPermission()
     var hasPerm by remember { mutableStateOf(initialPerm) }
     val requestPermission = rememberCameraPermissionState { hasPerm = it }
     LaunchedEffect(Unit) { if (!hasPerm) requestPermission() }
@@ -56,6 +55,7 @@ fun MainScreen(
         Box(Modifier.fillMaxSize(), Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(stringResource(Res.string.permission_camera_required))
+                TextButton(onClick = onBack) { Text("Back") }
                 Spacer(Modifier.height(16.dp))
                 Button(onClick = { requestPermission() }) {
                     Text(stringResource(Res.string.permission_grant))
@@ -120,7 +120,6 @@ private fun ColumnScope.ScanModeLayout(
     val liveColors by analyzer.detectedColors.collectAsState()
     val liveRgbs by analyzer.detectedRgbs.collectAsState()
     val liveWbRgbs by analyzer.detectedWbRgbs.collectAsState()
-    val debugBitmap by analyzer.debugBitmap.collectAsState()
 
     val effectiveLiveColors by remember {
         derivedStateOf {
@@ -159,7 +158,7 @@ private fun ColumnScope.ScanModeLayout(
     }
     val finalFaceOverrides = if (vm.debugMode && !vm.isAwaitingAlignment) {
         faceColorOverrides.toMutableMap().also { map ->
-            val t = map[currentFace]?.clone() ?: arrayOfNulls(9)
+            val t = map[currentFace]?.copyOf() ?: arrayOfNulls(9)
             for (i in 0 until 9) { if (i != 4 && t[i] != null) t[i] = Color.Transparent }
             map[currentFace] = t
         }
@@ -187,12 +186,14 @@ private fun ColumnScope.ScanModeLayout(
     ) {
         Box(Modifier.fillMaxSize()) {
             Box(Modifier.fillMaxSize().background(Color.Black))
+            if (!org.freevia.rubikbuddy.platformIsSimulator) {
             CameraPreviewLayer(
                 analyzer = analyzer,
                 debugMode = vm.debugMode,
                 onDebugToggle = { vm.toggleDebugMode() },
                 modifier = Modifier.fillMaxSize()
             )
+            }
             Cube3DView(
                 modifier = Modifier.fillMaxSize(),
                 cubeState = CubeState.fromFacelets(facelets),
@@ -215,30 +216,25 @@ private fun ColumnScope.ScanModeLayout(
                             vm.tileWarningColor = null
                             val labStr = if (wb != 0) {
                                 val lab = LabConverter.sRgbToLab(wb)
-                                "[%.1f,%.1f,%.1f]".format(lab[0], lab[1], lab[2])
+                                lab.joinToString(prefix = "[", postfix = "]")
                             } else "N/A"
                             val rank = if (wb != 0) vm.rankFor(wb, alt) else -1
-                            log("TILE_TAP face=$face ci=$ci wb=#${"%06X".format(wb)} lab=$labStr before=${before.name} after=${alt.name} rank=$rank")
+                            log("TILE_TAP face=$face ci=$ci wb=#${wb.toUInt().toString(16).padStart(8, '0')} lab=$labStr before=${before.name} after=${alt.name} rank=$rank")
                         }
                     }
                 }
             )
-            // Debug overlay sits above Cube3DView so LAB text is visible over the color grid
-            if (vm.debugMode) {
-                debugBitmap?.let { bmp ->
-                    val imgBitmap = bmp.asImageBitmap()
-                    Canvas(Modifier.fillMaxSize()) {
-                        val short = minOf(size.width, size.height)
-                        val px    = (short * 0.66f).toInt()
-                        val left  = ((size.width  - px) / 2).toInt()
-                        val top   = ((size.height - px) / 2).toInt()
-                        drawImage(imgBitmap, IntOffset.Zero, IntSize(bmp.width, bmp.height),
-                            IntOffset(left, top), IntSize(px, px))
-                    }
-                }
+            if (org.freevia.rubikbuddy.platformIsSimulator) {
+            CameraPreviewLayer(
+                analyzer = analyzer,
+                debugMode = vm.debugMode,
+                onDebugToggle = { vm.toggleDebugMode() },
+                modifier = Modifier.fillMaxSize()
+            )
             }
+            if (vm.debugMode) DebugFrameOverlay(analyzer, Modifier.fillMaxSize())
             // Debug button sits above Cube3DView so it receives touches first
-            if (BuildConfig.DEBUG) {
+            if (platformDebugEnabled) {
                 Surface(
                     onClick = { vm.toggleDebugMode() },
                     modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),

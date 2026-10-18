@@ -25,40 +25,6 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AndroidApp(vm: AppViewModel) {
-    MaterialTheme {
-        val snackbarHostState = remember { SnackbarHostState() }
-
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { padding ->
-            Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-                ScreenProgressBar(
-                    progress = vm.overallProgress,
-                    phase = vm.progressPhase,
-                    scanningFace = vm.scanningFace,
-                    currentStep = vm.solvingStep,
-                    totalSteps = vm.solvingTotalSteps,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
-                )
-
-                Box(modifier = Modifier.weight(1f)) {
-                    when (vm.currentScreen) {
-                        Screen.HOME -> {
-                            HomeScreen(onScanClicked = {
-                                vm.currentScreen = Screen.SCAN
-                            })
-                        }
-                        Screen.SCAN -> {
-                            BackHandler { vm.currentScreen = Screen.HOME }
-                            MainScreen(
-                                vm = vm,
-                                onBack = { vm.currentScreen = Screen.HOME },
-                                onDone = { vm.currentScreen = Screen.HOME }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    BackHandler(enabled = vm.currentScreen == Screen.SCAN) { vm.currentScreen = Screen.HOME }
+    RubikApp(vm)
 }

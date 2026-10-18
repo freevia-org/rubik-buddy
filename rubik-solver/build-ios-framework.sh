@@ -3,7 +3,7 @@
 # Builds arm64 device + arm64 simulator (Apple Silicon CI / M-series Mac).
 # x86_64 simulator omitted — no longer needed for arm64-only CI or M-series Macs.
 # Output: rubik-solver/min2phaseXCFramework/min2phase.xcframework
-set -e
+set -euo pipefail
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 SRC="$REPO_ROOT/rubik-solver/min2phaseCXX"
@@ -49,13 +49,18 @@ build_slice() {
 
     # Find the built static library
     local LIB
-    LIB=$(find "$BUILD_DIR" -name "libmin2phase.a" | head -1)
-    if [ -z "$LIB" ]; then
+    LIB="$BUILD_DIR/libmin2phase.a"
+    if [ ! -f "$LIB" ]; then
         echo "ERROR: libmin2phase.a not found in $BUILD_DIR"
         exit 1
     fi
 
-    # Compile the C wrapper and add it into the library
+    # Clean archives produced by the old script, which appended the wrapper in place.
+    if ar -t "$LIB" | /usr/bin/grep -q '^min2phase_c.o$'; then
+        cmake --build "$BUILD_DIR" --target min2phase --clean-first
+    fi
+
+    # Keep CMake's archive untouched; create a fresh combined library on every run.
     "$CLANGXX" -c \
         -arch "$ARCH" \
         -isysroot "$SYSROOT" \
@@ -65,8 +70,8 @@ build_slice() {
         -I"$WRAPPER/include" \
         "$WRAPPER/src/min2phase_c.cpp" \
         -o "$BUILD_DIR/min2phase_c.o"
-    ar -q "$LIB" "$BUILD_DIR/min2phase_c.o"
-    ranlib "$LIB"
+    mkdir -p "$BUILD_DIR/wrapped"
+    xcrun libtool -static -o "$BUILD_DIR/wrapped/libmin2phase.a" "$LIB" "$BUILD_DIR/min2phase_c.o"
 }
 
 echo "Building arm64 device slice..."
@@ -75,8 +80,8 @@ build_slice arm64 iphoneos arm64-device -mios-version-min=15.0
 echo "Building arm64 simulator slice..."
 build_slice arm64 iphonesimulator arm64-sim -mios-simulator-version-min=15.0
 
-DEVICE_LIB=$(find "$SRC/build-arm64-device" -name "libmin2phase.a" | head -1)
-SIM_LIB=$(find "$SRC/build-arm64-sim" -name "libmin2phase.a" | head -1)
+DEVICE_LIB="$SRC/build-arm64-device/wrapped/libmin2phase.a"
+SIM_LIB="$SRC/build-arm64-sim/wrapped/libmin2phase.a"
 
 # Single-arch arm64 simulator → xcodebuild names it "ios-arm64-simulator"
 # matching the libraryPath in build.gradle.kts iosSimulatorArm64 cinterop.

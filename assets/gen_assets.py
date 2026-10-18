@@ -7,7 +7,7 @@ Generate Play Store visual assets for Rubik Buddy:
 """
 
 from PIL import Image, ImageDraw, ImageFont
-import math, os
+import math, os, sys
 
 OUT = os.path.join(os.path.dirname(__file__), "store")
 os.makedirs(OUT, exist_ok=True)
@@ -133,8 +133,8 @@ def draw_viewfinder(draw, cx, cy, size, color, line_w, corner_len):
 # 1. App Icon  512 × 512
 # ══════════════════════════════════════════════════════════════════════════════
 
-def make_icon(size=512):
-    img  = Image.new("RGBA", (size, size), (0,0,0,0))
+def make_icon(size=512, ios=False):
+    img  = Image.new("RGBA", (size, size), BG_DARK + (255,) if ios else (0,0,0,0))
     draw = ImageDraw.Draw(img, "RGBA")
 
     # Rounded-square background (like Android adaptive icon)
@@ -169,9 +169,23 @@ def make_icon(size=512):
     text = "RUBIK BUDDY"
     bbox = draw.textbbox((0,0), text, font=font)
     tw = bbox[2] - bbox[0]
-    draw.text((size//2 - tw//2, label_y), text, font=font, fill=ACCENT)
+    if not ios:
+        draw.text((size//2 - tw//2, label_y), text, font=font, fill=ACCENT)
 
     return img
+
+# Reuse the established code-drawn branding at native iOS resolution.
+if "--ios" in sys.argv:
+    from pathlib import Path
+    import json
+    catalog = Path(__file__).resolve().parent.parent / "iosApp/iosApp/Assets.xcassets"
+    appicon = catalog / "AppIcon.appiconset"
+    appicon.mkdir(parents=True, exist_ok=True)
+    make_icon(1024, ios=True).convert("RGB").save(appicon / "AppIcon.png")
+    (catalog / "Contents.json").write_text(json.dumps({"info": {"author": "xcode", "version": 1}}, indent=2)+"\n")
+    (appicon / "Contents.json").write_text(json.dumps({"images": [{"filename": "AppIcon.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"}], "info": {"author": "xcode", "version": 1}}, indent=2)+"\n")
+    print(appicon / "AppIcon.png")
+    sys.exit(0)
 
 icon = make_icon(512)
 icon.save(os.path.join(OUT, "icon_512.png"))

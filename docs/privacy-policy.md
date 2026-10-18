@@ -1,21 +1,20 @@
 # Privacy policy for Rubik Buddy
 
-Last reviewed 11 October 2026. Rubik Buddy is published by **Freevia**. Questions:
+Last reviewed 19 October 2026. Rubik Buddy is published by **Freevia**. Questions:
 [info@freevia.org](mailto:info@freevia.org).
 
 ## The short version
 
 Rubik Buddy uses your camera to read the colours of a Rubik's Cube. Camera frames are
 processed on your device and are never saved, uploaded or shared. The app has no account,
-no ads, no analytics, no crash reporting and no internet permission. Freevia does not
+no ads, no analytics and no crash reporting. The Android app has no internet permission; the iOS app makes no network requests. Freevia does not
 receive any data from the app.
 
 ## Camera
 
-The app asks for the Android camera permission so that it can show a live preview and read
+The app asks for camera access on Android or iOS so that it can show a live preview and read
 sticker colours. Each frame is analysed in memory to extract colour values and is then
-discarded. No photo or video is stored, and the app does not request the internet
-permission, so nothing can be sent from the app.
+discarded. No photo or video is stored or transmitted.
 
 ## Data the app stores
 
@@ -27,7 +26,7 @@ are working on exists only while the app is open. Android backup is disabled for
 The shipped app contains no analytics, advertising, crash-reporting or Firebase SDK. Firebase
 App Distribution is a developer tool used only to send test builds; it is not part of the app
 on your phone. If you install the app through Google Play, Google's own terms and privacy
-policy apply to the store, not to the app.
+policy apply to the store, not to the app. Apple's terms and privacy policy similarly apply to App Store or TestFlight distribution.
 
 ## Children
 

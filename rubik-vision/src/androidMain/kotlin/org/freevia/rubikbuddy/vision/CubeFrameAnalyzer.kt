@@ -52,23 +52,23 @@ class CubeFrameAnalyzer(val colorSession: ColorSession) : ImageAnalysis.Analyzer
 
     // ---- StateFlows ----
     private val _detectedColors = MutableStateFlow<List<CubeColor>>(emptyList())
-    val detectedColors = _detectedColors.asStateFlow()
+    override val detectedColors = _detectedColors.asStateFlow()
 
     /** LAB-derived sRGB per tile. */
     private val _detectedWbRgbs = MutableStateFlow<IntArray>(IntArray(0))
-    val detectedWbRgbs = _detectedWbRgbs.asStateFlow()
+    override val detectedWbRgbs = _detectedWbRgbs.asStateFlow()
     /** Alias for [detectedWbRgbs] — kept for call-site compatibility. */
-    val detectedRgbs get() = detectedWbRgbs
+    override val detectedRgbs get() = detectedWbRgbs
 
     /** Per-tile confidence in [0,1]. < 0.15 = uncertain. */
     private val _confidence = MutableStateFlow<FloatArray>(FloatArray(0))
-    val confidence = _confidence.asStateFlow()
+    override val confidence = _confidence.asStateFlow()
 
     /** Raw smoothed LAB values per tile from the last analyzed frame. */
     private val _detectedLabs = MutableStateFlow(Array(9) { FloatArray(3) })
-    val detectedLabs = _detectedLabs.asStateFlow()
+    override val detectedLabs = _detectedLabs.asStateFlow()
 
-    @Volatile var debugMode: Boolean = false
+    @Volatile override var debugMode: Boolean = false
     private val _debugBitmap = MutableStateFlow<Bitmap?>(null)
     val debugBitmap = _debugBitmap.asStateFlow()
 
@@ -99,7 +99,7 @@ class CubeFrameAnalyzer(val colorSession: ColorSession) : ImageAnalysis.Analyzer
     // Center stability
     private val consecutiveCenterInRange = java.util.concurrent.atomic.AtomicInteger(0)
     private val _centerStable = MutableStateFlow(false)
-    val centerStable = _centerStable.asStateFlow()
+    override val centerStable = _centerStable.asStateFlow()
 
     // Stability-transition tracking (single-thread executor — no @Volatile needed for lastScanFrameMs)
     // Written from camera executor thread (analyze) and main thread (resetTemporalBuffers);
@@ -438,3 +438,5 @@ class CubeFrameAnalyzer(val colorSession: ColorSession) : ImageAnalysis.Analyzer
         return bmp
     }
 }
+
+actual fun createFrameAnalyzer(colorSession: ColorSession): FrameAnalyzer = CubeFrameAnalyzer(colorSession)

@@ -10,22 +10,10 @@
 		AA000001000000000000001 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000011 /* iOSApp.swift */; };
 		AA000001000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000012 /* ContentView.swift */; };
 		AA000001000000000000003 /* ComposeApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA000001000000000000013 /* ComposeApp.framework */; };
-		AA000001000000000000004 /* ComposeApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA000001000000000000013 /* ComposeApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+        CC0000000000000000000001 = {isa = PBXBuildFile; fileRef = CC0000000000000000000002; };
+        CC0000000000000000000003 = {isa = PBXBuildFile; fileRef = CC0000000000000000000004; };
+        CC0000000000000000000005 = {isa = PBXBuildFile; fileRef = CC0000000000000000000006; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		AA000001000000000000020 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				AA000001000000000000004 /* ComposeApp.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		AA000001000000000000010 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -33,6 +21,9 @@
 		AA000001000000000000012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		AA000001000000000000013 /* ComposeApp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ComposeApp.framework; path = "$(BUILD_DIR)/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/ComposeApp.framework"; sourceTree = "<absolute>"; };
 		AA000001000000000000014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+        CC0000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+        CC0000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+        CC0000000000000000000006 = {isa = PBXFileReference; lastKnownFileType = text; path = ThirdPartyNotices.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +60,9 @@
 				AA000001000000000000011 /* iOSApp.swift */,
 				AA000001000000000000012 /* ContentView.swift */,
 				AA000001000000000000014 /* Info.plist */,
+                CC0000000000000000000002,
+                CC0000000000000000000004,
+                CC0000000000000000000006,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -93,7 +87,6 @@
 				AA000001000000000000031 /* Sources */,
 				AA000001000000000000030 /* Frameworks */,
 				AA000001000000000000032 /* Resources */,
-				AA000001000000000000020 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -142,6 +135,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+                CC0000000000000000000001,
+                CC0000000000000000000003,
+                CC0000000000000000000005,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,6 +146,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		AA000001000000000000070 /* Run Gradle Build */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);

@@ -149,7 +149,7 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
         for (color in CubeColor.entries) {
             if (color == CubeColor.WHITE) continue
             val m = colorModels[color]
-            if (m != null) append("${color.name}[H=%.0f° n=${m.sampleCount}] ".format(m.meanH))
+            if (m != null) append("${color.name}[H=${m.meanH.debugFixed(0)}° n=${m.sampleCount}] ")
             else append("${color.name}[prior] ")
         }
     }
@@ -166,17 +166,17 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
             val mm   = (ts / 60_000L)    % 60
             val ss   = (ts / 1_000L)     % 60
             val tag  = if (event.isRescan) "RESCAN" else "first scan"
-            appendLine("[Face ${event.face.name} | %02d:%02d:%02d | $tag]".format(hh, mm, ss))
+            appendLine("[Face ${event.face.name} | ${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')} | $tag]")
             for (tile in event.tiles) {
                 val star   = if (tile.isCenter) "*" else " "
                 val lab    = tile.lab
                 val lch    = tile.lch
                 val scores = tile.scoresBeforeThisFace.entries
                     .sortedBy { it.value }
-                    .joinToString(" ") { "${it.key.label}=%.1f".format(it.value) }
+                    .joinToString(" ") { "${it.key.label}=${it.value.debugFixed(1)}" }
                 appendLine("  tile ${tile.tileIndex}$star ${tile.assignedColor.name.padEnd(6)} " +
-                    "L=%.0f a=%.0f b=%.0f  C=%.0f H=%.0f°  w=%.1f  before:[$scores]"
-                        .format(lab[0], lab[1], lab[2], lch[1], lch[2], tile.weight))
+                    "L=${lab[0].debugFixed(0)} a=${lab[1].debugFixed(0)} b=${lab[2].debugFixed(0)}  " +
+                    "C=${lch[1].debugFixed(0)} H=${lch[2].debugFixed(0)}°  w=${tile.weight.debugFixed(1)}  before:[$scores]")
             }
         }
         appendLine()
@@ -189,10 +189,9 @@ class ColorSession(private val clock: () -> Long = { 0L }) {
             val m = colorModels[color]
             if (m == null) {
                 val h = PRIORS_H[color]!!
-                appendLine("  ${color.name.padEnd(6)} prior H=%.1f° (no session data)".format(h))
+                appendLine("  ${color.name.padEnd(6)} prior H=${h.debugFixed(1)}° (no session data)")
             } else {
-                appendLine("  ${color.name.padEnd(6)} mean_H=%.1f°  (n=${m.sampleCount} w=%.1f)"
-                    .format(m.meanH, m.totalWeight))
+                appendLine("  ${color.name.padEnd(6)} mean_H=${m.meanH.debugFixed(1)}°  (n=${m.sampleCount} w=${m.totalWeight.debugFixed(1)})")
             }
         }
     }
