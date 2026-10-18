@@ -24,7 +24,7 @@ class ColorSessionTest {
         assertEquals(1.0f, conf)
     }
 
-    @Test fun `classify near-white lab (chroma just below threshold) as WHITE`() {
+    @Test fun `classify near-white lab with chroma just below threshold as WHITE`() {
         val session = ColorSession()
         // chroma = sqrt((-2)²+5²) ≈ 5.4 < 15
         val (color, _) = session.classify(floatArrayOf(85f, -2f, 5f))
@@ -124,7 +124,7 @@ class ColorSessionTest {
         assertEquals(CubeColor.RED, color)
     }
 
-    @Test fun `center tile (index 4) gets CENTER_TILE_WEIGHT`() {
+    @Test fun `center tile at index 4 gets CENTER_TILE_WEIGHT`() {
         val session = ColorSession()
         val colors = Array(9) { CubeColor.RED }
         val labs = Array(9) { i ->

@@ -59,13 +59,15 @@ The design notes behind these choices are kept in [`docs/history`](docs/history)
 
 | Module | Purpose |
 | --- | --- |
-| `composeApp` | Android app and Compose Multiplatform UI (the iOS entry point is experimental) |
+| `composeApp` | Shared scan/solve UI and app state, with Android and iOS camera adapters |
 | `rubik-model` | Cube state, moves and validation (Kotlin Multiplatform, pure Kotlin) |
 | `rubik-vision` | Colour classification and the face-scan flow |
 | `rubik-solver` | Solver wrapper: Java min2phase on Android, `min2phaseCXX` (git submodule) on iOS |
-| `iosApp` | Xcode host project (experimental, not published) |
+| `iosApp` | iOS host (simulator tested; not published) |
 
 ## Build
+
+For the iOS host, see [iOS build preparation](docs/IOS_BUILD.md).
 
 Requirements: JDK 21 and the Android SDK with platform 36.
 

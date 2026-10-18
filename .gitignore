@@ -102,3 +102,10 @@ rubik-solver/min2phaseXCFramework/
 
 # Dependency cache (optional - can be shared or ignored as needed)
 # libs/
+
+# Local Xcode state and signed exports
+**/xcuserdata/
+*.xcuserstate
+*.xcarchive/
+*.ipa
+*.mobileprovision

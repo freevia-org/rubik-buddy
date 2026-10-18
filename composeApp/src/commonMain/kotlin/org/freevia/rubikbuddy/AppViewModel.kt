@@ -18,9 +18,11 @@ import org.freevia.rubikbuddy.ui.ProgressPhase
 import org.freevia.rubikbuddy.ui.buildEffectiveWbRgbs
 import org.freevia.rubikbuddy.ui.isFaceScanned
 import org.freevia.rubikbuddy.vision.ColorSession
-import org.freevia.rubikbuddy.vision.CubeFrameAnalyzer
+import org.freevia.rubikbuddy.vision.createFrameAnalyzer
 import org.freevia.rubikbuddy.vision.LabConverter
 import org.freevia.rubikbuddy.vision.ScanOrchestrator
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -41,8 +43,8 @@ private fun IntArray.toCubeStr(): String {
 }
 
 class AppViewModel : ViewModel() {
-    val colorSession = ColorSession(clock = System::currentTimeMillis)
-    val analyzer = CubeFrameAnalyzer(colorSession)
+    val colorSession = ColorSession(clock = ::platformTimeMillis)
+    val analyzer = createFrameAnalyzer(colorSession)
     val orchestrator = ScanOrchestrator()
     var currentScreen by mutableStateOf(Screen.HOME)
 
@@ -112,8 +114,11 @@ class AppViewModel : ViewModel() {
         analyzer.resetTemporalBuffers()
     }
 
+    private var solveJob: Job? = null
+
     private fun runSolver() {
-        viewModelScope.launch {
+        solveJob?.cancel()
+        solveJob = viewModelScope.launch {
             try {
                 val state = orchestrator.buildCubeState()
                 log("SOLVER_START cube=${state.facelets.toCubeStr()}")
@@ -127,6 +132,8 @@ class AppViewModel : ViewModel() {
                 appMode = AppMode.SOLVE
                 progressPhase = ProgressPhase.SOLVING
                 updateSolveProgress(0)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 log("SOLVER_ERROR ${e.message}")
                 solveResult = SolveResult.Error(e.message ?: "Unexpected error")
@@ -214,6 +221,8 @@ class AppViewModel : ViewModel() {
     }
 
     fun restartScan() {
+        solveJob?.cancel()
+        isLoadingSolve = false
         orchestrator.reset()
         colorSession.reset()
         analyzer.resetTemporalBuffers()

@@ -1,112 +1,76 @@
 name: iOS
 
-# Manual only: the iOS port is experimental and has not been verified green on CI.
-# Run it from the Actions tab (workflow_dispatch) when working on iOS.
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: Simulator tests and unsigned iPhone archive
     runs-on: macos-latest
-
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+          fetch-depth: 0
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v6
+      - uses: actions/setup-java@v6
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: temurin
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Grant execute permission for build-ios-framework.sh
-        run: chmod +x rubik-solver/build-ios-framework.sh
-
-      - name: Build min2phaseCXX XCFramework
-        run: ./rubik-solver/build-ios-framework.sh
-
-      # Compile Kotlin/Native sources for both iOS targets.
-      - name: Compile Kotlin/Native (iosArm64 + iosSimulatorArm64)
-        run: ./gradlew :composeApp:compileKotlinIosArm64 :composeApp:compileKotlinIosSimulatorArm64 :rubik-solver:compileKotlinIosArm64 :rubik-solver:compileKotlinIosSimulatorArm64
-
-      # Build for iOS Simulator — no code signing required.
-      # KMP's Gradle script phase (inside xcodebuild) assembles ComposeApp.framework
-      # and creates a symlink at $BUILT_PRODUCTS_DIR/ComposeApp.framework so Swift
-      # can find the module via the default $(BUILT_PRODUCTS_DIR) framework search path.
-      # Using a local -derivedDataPath keeps $BUILT_PRODUCTS_DIR inside the repo tree
-      # so the relative symlink target resolves correctly.
-      - name: Build iOS app (simulator)
-        run: |
-          xcodebuild build \
-            -project iosApp/iosApp.xcodeproj \
-            -scheme iosApp \
-            -sdk iphonesimulator \
-            -arch arm64 \
-            -configuration Debug \
-            -derivedDataPath ./build/xcode-derived-data \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Upload simulator app
-        uses: actions/upload-artifact@v6
+      - uses: android-actions/setup-android@v4
         with:
-          name: iosApp-simulator
-          path: build/xcode-derived-data/Build/Products/Debug-iphonesimulator/iosApp.app
-          if-no-files-found: warn
+          packages: platform-tools
 
-      # ── Device IPA (optional) ──────────────────────────────────────────────
-      # Requires Apple Developer certificates stored as GitHub secrets:
-      #   APPLE_CERTIFICATE_BASE64   – p12 exported from Keychain, base64-encoded
-      #   APPLE_CERTIFICATE_PASSWORD – p12 export password
-      #   APPLE_PROVISIONING_PROFILE – .mobileprovision file, base64-encoded
-      #
-      # Uncomment the steps below and add those secrets to enable device builds.
-      # -----------------------------------------------------------------------
-      # - name: Import signing certificate
-      #   env:
-      #     CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
-      #     CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-      #   run: |
-      #     echo "$CERTIFICATE_BASE64" | base64 --decode > /tmp/cert.p12
-      #     security create-keychain -p "" build.keychain
-      #     security import /tmp/cert.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-      #     security list-keychains -s build.keychain
-      #     security default-keychain -s build.keychain
-      #     security unlock-keychain -p "" build.keychain
-      #     security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
-      #
-      # - name: Install provisioning profile
-      #   env:
-      #     PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
-      #   run: |
-      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-      #     echo "$PROVISIONING_PROFILE" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/app.mobileprovision
-      #
-      # - name: Archive and export IPA
-      #   run: |
-      #     xcodebuild archive \
-      #       -project iosApp/iosApp.xcodeproj \
-      #       -scheme iosApp \
-      #       -sdk iphoneos \
-      #       -archivePath build/iosApp.xcarchive
-      #     xcodebuild -exportArchive \
-      #       -archivePath build/iosApp.xcarchive \
-      #       -exportPath build/iosApp-ipa \
-      #       -exportOptionsPlist iosApp/ExportOptions.plist
-      #
-      # - name: Upload IPA
-      #   uses: actions/upload-artifact@v6
-      #   with:
-      #     name: iosApp-device
-      #     path: build/iosApp-ipa/*.ipa
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Build simulator app and native solver
+        run: ./scripts/build-ios.sh
+
+      - name: Select an installed simulator for native tests
+        run: |
+          xcrun simctl list devices available -j > "$RUNNER_TEMP/simulators.json"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads((Path(os.environ['RUNNER_TEMP']) / 'simulators.json').read_text())
+          phones = [d for runtime, devices in data['devices'].items() if '.iOS-' in runtime for d in devices if 'iPhone' in d['name']]
+          if not phones:
+              raise SystemExit('No installed iPhone simulator runtime')
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              env.write('IOS_SIMULATOR_UDID=' + phones[0]['udid'] + '\n')
+          PY
+
+      - name: Test iOS vision and native solver
+        run: |
+          set -o pipefail
+          ./scripts/test-ios-native.sh 2>&1 | tee build/ios-native-tests.log
+
+      - name: Archive Release for iPhone (no signing credentials required)
+        run: ./scripts/archive-ios.sh
+
+      - name: Package simulator app
+        run: ditto -c -k --keepParent build/xcode-derived-data/Build/Products/Debug-iphonesimulator/iosApp.app build/RubikBuddy-simulator.zip
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ios-builds-and-test-results
+          path: |
+            build/RubikBuddy-simulator.zip
+            build/ios-device/*.zip
+            build/ios-device/*.sha256
+            build/ios-device/BUILD-INFO-*.txt
+            build/ios-device/VALIDATION-*.json
+            build/ios-native-tests.log
+          if-no-files-found: error

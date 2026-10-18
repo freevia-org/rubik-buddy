@@ -1,6 +1,6 @@
 // rubik-solver: KMP wrapper for the min2phase Rubik's Cube solver.
 // Android: uses the Java min2phase implementation.
-// iOS: stub now; wired to min2phaseCXX in Task 5 (requires macOS).
+// iOS: native min2phaseCXX through the C wrapper (requires macOS).
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -61,6 +61,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
         }
         val androidHostTest by getting {
+            kotlin.srcDir("src/androidUnitTest/kotlin")
             dependencies {
                 implementation(libs.junit.jupiter)
                 implementation(libs.kotlinx.coroutines.core)

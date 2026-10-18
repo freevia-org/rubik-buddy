@@ -41,7 +41,7 @@ internal fun RowScope.ScanFooter(
         onClick  = onBack,
         modifier = Modifier.height(56.dp).weight(1f),
         shape    = RoundedCornerShape(16.dp)
-    ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+    ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Previous") }
 
     Button(
         onClick = { if (isViewingScanned) onEdit() else onConfirm() },
@@ -65,7 +65,7 @@ internal fun RowScope.ScanFooter(
         shape           = RoundedCornerShape(16.dp),
         enabled         = faceScanned,
         contentPadding  = PaddingValues(0.dp)
-    ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, null) }
+    ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, "Next") }
 }
 
 /**
@@ -85,7 +85,7 @@ internal fun RowScope.SolveFooter(
         onClick  = onPrev,
         modifier = Modifier.height(56.dp).weight(1f),
         shape    = RoundedCornerShape(16.dp)
-    ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+    ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Previous") }
 
     val midLabel = when {
         isSolved         -> stringResource(Res.string.solve_button_restart)
@@ -104,5 +104,5 @@ internal fun RowScope.SolveFooter(
         shape          = RoundedCornerShape(16.dp),
         enabled        = canGoNext,
         contentPadding = PaddingValues(0.dp)
-    ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, null) }
+    ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, "Next") }
 }
