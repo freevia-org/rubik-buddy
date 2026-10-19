@@ -6,8 +6,8 @@ For help with scanning or using the app, email **[info@freevia.org](mailto:info@
 
 Use [GitHub Issues](https://github.com/freevia-org/rubik-buddy/issues) and include:
 
-- App version and Android version.
-- Phone model, if the issue concerns the camera or layout.
+- App version and Android/iOS version.
+- iPhone, iPad, or Android device model, if the issue concerns the camera or layout.
 - Lighting conditions and cube type if a colour was misread.
 - Steps to reproduce, what you expected and what happened.
 

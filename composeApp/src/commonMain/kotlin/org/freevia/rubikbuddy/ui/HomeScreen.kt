@@ -16,6 +16,7 @@ import org.freevia.rubikbuddy.generated.resources.home_status_error
 import org.freevia.rubikbuddy.generated.resources.home_status_loading
 import org.freevia.rubikbuddy.generated.resources.home_status_ready
 import org.freevia.rubikbuddy.generated.resources.home_title
+import org.freevia.rubikbuddy.generated.resources.privacy_and_support
 import org.freevia.rubikbuddy.model.CubeColor
 import org.freevia.rubikbuddy.model.CubeState
 import org.freevia.rubikbuddy.solver.CubeSolver
@@ -25,6 +26,8 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HomeScreen(onScanClicked: () -> Unit) {
+    var showPrivacy by remember { mutableStateOf(false) }
+    if (showPrivacy) PrivacyDialog(onDismiss = { showPrivacy = false })
     var solverReady by remember { mutableStateOf(false) }
     var errorCause by remember { mutableStateOf<String?>(null) }
 
@@ -128,6 +131,9 @@ fun HomeScreen(onScanClicked: () -> Unit) {
                     Text(stringResource(Res.string.home_button_scan), style = MaterialTheme.typography.titleMedium)
                 }
                 Spacer(Modifier.weight(1f))
+            }
+            TextButton(onClick = { showPrivacy = true }) {
+                Text(stringResource(Res.string.privacy_and_support))
             }
         }
     }

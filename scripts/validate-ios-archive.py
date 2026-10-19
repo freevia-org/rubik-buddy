@@ -17,6 +17,8 @@ assert info['CFBundleSupportedPlatforms'] == ['iPhoneOS'], 'Expected a physical-
 assert info['CFBundleDisplayName'] == 'Rubik Buddy'
 assert re.fullmatch(r'\d+(\.\d+){0,2}', info['CFBundleVersion']), 'Invalid build number'
 assert info.get('CADisableMinimumFrameDurationOnPhone') is True
+assert re.fullmatch(r'\d+(\.\d+){0,2}', info['CFBundleShortVersionString']), 'Invalid marketing version'
+assert info.get('ITSAppUsesNonExemptEncryption') is False
 assert info.get('NSCameraUsageDescription'), 'Missing camera permission explanation'
 assert (app / 'Assets.car').is_file(), 'Missing icon catalog'
 assert info.get('CFBundleIcons', {}).get('CFBundlePrimaryIcon'), 'Missing primary app icon'
@@ -27,10 +29,15 @@ assert privacy['NSPrivacyTracking'] is False
 assert privacy['NSPrivacyCollectedDataTypes'] == []
 architectures = subprocess.check_output(['xcrun', 'lipo', '-archs', str(app / info['CFBundleExecutable'])], text=True).strip()
 assert architectures == 'arm64', f'Expected arm64 device executable, got {architectures}'
-assert list((archive / 'dSYMs').glob('*.app.dSYM')), 'Missing app debug symbols'
+dsym = archive / 'dSYMs' / (app.name + '.dSYM')
+assert dsym.is_dir(), 'Missing app debug symbols'
+def uuids(path):
+    output = subprocess.check_output(['xcrun', 'dwarfdump', '--uuid', str(path)], text=True)
+    return set(re.findall(r'UUID: ([A-Fa-f0-9-]+) \(arm64\)', output))
+assert uuids(app / info['CFBundleExecutable']) == uuids(dsym) != set(), 'App/dSYM UUID mismatch'
 print(json.dumps({
     'archive': str(archive), 'bundle_identifier': info['CFBundleIdentifier'],
     'version': info['CFBundleShortVersionString'], 'build': info['CFBundleVersion'],
     'architectures': architectures, 'minimum_ios': info['MinimumOSVersion'],
-    'provisioned': (app / 'embedded.mobileprovision').is_file(), 'validation': 'passed',
+    'matching_debug_symbols': True, 'provisioned': (app / 'embedded.mobileprovision').is_file(), 'validation': 'passed',
 }, indent=2))

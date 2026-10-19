@@ -59,3 +59,17 @@ physical-iPhone acceptance checks, listed in [IOS_RELEASE.md](IOS_RELEASE.md).
 
 See [the readiness validation report](IOS_VALIDATION.md) for the final local check
 results. Apple signing was unavailable; the generated iPhone archive is unsigned.
+
+## App Store preparation
+
+See [`app-store/README.md`](../app-store/README.md) for metadata, privacy answers,
+screenshots, signed distribution export and submission gates. Run
+`python3 scripts/validate-app-store.py` before packaging. A Release simulator build
+for screenshots can use:
+
+```bash
+IOS_CONFIGURATION=Release IOS_DERIVED_DATA="$PWD/build/xcode-store-simulator" ./scripts/build-ios.sh
+```
+
+Keep builds in this checkout sequential; native framework outputs are shared.
+The default Debug output path remains compatible with CI.

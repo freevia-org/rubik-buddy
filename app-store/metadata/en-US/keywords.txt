@@ -1,0 +1,1 @@
+cube,solver,puzzle,3x3,learn,offline,colors,steps

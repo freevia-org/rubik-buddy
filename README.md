@@ -4,7 +4,7 @@
 
 **Point your camera at a 3x3 Rubik's Cube and get a step-by-step solution.**
 
-Rubik Buddy is an Android app that scans the six faces of a standard 3x3 cube with
+Rubik Buddy is an Android and iOS app that scans the six faces of a standard 3x3 cube with
 the phone camera, lets you correct any misread tile, and then walks you through a short
 solution with an animated 3D cube. Everything runs on the phone: there is no account,
 no ads, no analytics, and no image ever leaves the device.
@@ -19,6 +19,10 @@ Android 0.1.0 (build 69) is available to invited testers with Android 9+
 and a camera. The production release is in Google review; the
 [public Play listing](https://play.google.com/store/apps/details?id=org.freevia.rubikbuddy)
 may not open until approval. No GitHub APK release has been published.
+
+**iOS 1.0.0:** prepared for App Store signing and physical-device acceptance.
+See the [App Store submission kit](app-store/README.md). It is not yet available
+on the App Store or TestFlight.
 
 ## Screenshots
 
@@ -41,7 +45,7 @@ Real screens from an Android phone with a real cube.
 
 ## How scanning works
 
-Frames from CameraX are analysed on the device by the `rubik-vision` module:
+Frames from CameraX (Android) or AVFoundation (iOS) are analysed on the device by the `rubik-vision` module:
 
 1. The nine sticker regions of the face in the viewfinder are sampled and converted to CIE Lab.
 2. The six centre stickers establish the white balance and the reference hue of each colour
@@ -99,3 +103,5 @@ public, so please keep reports free of personal photos or information.
 
 Rubik Buddy is released under the [MIT License](LICENSE). Third-party components keep their
 own licences; see [NOTICE](NOTICE).
+
+App Store publishing preparation: [submission kit](app-store/README.md).

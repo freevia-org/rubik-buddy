@@ -51,11 +51,11 @@ flow. They cannot establish camera color accuracy on real hardware.
 
 - Display name: Rubik Buddy
 - Bundle identifier: org.freevia.rubikbuddy
-- Version: 0.1.0; script build number defaults to Git commit count
+- Version: 1.0.0; script build number defaults to Git commit count
 - Minimum iOS: 15.0; arm64 device and arm64 simulator
 - App icon: opaque 1024×1024 asset catalog, generated from the existing branding
-- Privacy policy: https://freevia.org/rubik-buddy/privacy
-- Support: https://github.com/freevia-org/rubik-buddy/issues
+- Privacy policy: https://github.com/freevia-org/rubik-buddy/blob/main/docs/privacy-policy.md
+- Support: https://github.com/freevia-org/rubik-buddy/blob/main/.github/SUPPORT.md
 - Privacy: no tracking; no collected data; all camera processing stays on device
 - Encryption declaration: no non-exempt encryption
 - Third-party notices and privacy manifest included in the app bundle
@@ -65,22 +65,29 @@ measurement (35F9.1) used by the shared runtime, alongside empty collection and
 tracking declarations. See Apple's [required-reason API documentation](https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api).
 Recheck the declarations whenever adding dependencies or data flows.
 
-## App Store listing draft
+## App Store preparation
 
-Subtitle: Scan, solve, follow each move
+The complete submission kit is in [`app-store/README.md`](../app-store/README.md),
+with copy-ready metadata, questionnaire drafts, review notes and native simulator
+screenshots. Validate it with `python3 scripts/validate-app-store.py`.
 
-Description:
+Once a paid developer team is available, export locally for App Store Connect:
 
-Point your camera at a 3×3 Rubik's Cube, scan its six faces, and follow an animated
-solution one move at a time. Correct any misread sticker before solving, replay a
-move, or go back whenever you need. Scanning and solving run entirely on your
-phone. No account, ads, tracking, or uploads.
+```bash
+IOS_DEVELOPMENT_TEAM=YOURTEAMID IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
+```
 
-Promotional text: Scan your cube and follow clear, animated moves to solve it.
+Choose a build number higher than previously uploaded builds. This exports to
+`build/ios-device/app-store-ipa/` without uploading. Xcode Organizer or Transporter
+performs the eventual validation/upload. No phone registration is needed for
+App Store/TestFlight signing, but camera acceptance still requires real hardware.
 
-Keywords: cube,solver,puzzle,3x3,rubik,learn,offline
+## Store copy and final review
 
-Before publishing: complete the real-device checks, confirm the listing and
-privacy-policy website reflect the iOS release, choose screenshots from the final
-signed build, configure App Store Connect/TestFlight, and complete Apple's account
-and review questionnaires. No listing or build has been uploaded from this task.
+Copy-ready English metadata is in [`app-store/metadata/en-US/`](../app-store/metadata/en-US/).
+Review notes and TestFlight test instructions are adjacent. The App Store kit is
+also packaged as an artifact by the iOS GitHub workflow after a successful archive.
+
+Before publishing: complete real-device checks, review the final screenshots,
+configure App Store Connect/TestFlight, finish owner questionnaires and run Apple
+validation. No listing or build has been uploaded from this preparation task.

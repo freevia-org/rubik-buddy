@@ -1,0 +1,1 @@
+Scan your 3x3 cube, check its colors, and follow an animated solution. Everything happens on your device.

@@ -1,0 +1,39 @@
+{
+  "bundle_id": "org.freevia.rubikbuddy",
+  "sku": "rubik-buddy-ios",
+  "version": "1.0.0",
+  "primary_locale": "en-US",
+  "primary_category": "Utilities",
+  "secondary_category": "Education",
+  "copyright": "2026 Freevia",
+  "pricing_recommendation": "Free",
+  "release_option": "Manual release after approval",
+  "privacy": {
+    "collects_data": false,
+    "tracking": false,
+    "camera_processing": "on-device only",
+    "account_required": false
+  },
+  "export_compliance": {
+    "uses_non_exempt_encryption": false
+  },
+  "age_rating_draft": {
+    "content_descriptors": "None",
+    "advertising": false,
+    "user_generated_content": false,
+    "messaging": false,
+    "unrestricted_web_access": false,
+    "gambling": false,
+    "purchases": false,
+    "made_for_kids": false
+  },
+  "pending_owner_fields": [
+    "App Review contact first/last name and phone",
+    "Developer legal identity / trademark rights confirmation",
+    "App Store territories, pricing, EU DSA trader status and applicable regional declarations",
+    "Final age rating assigned by App Store Connect",
+    "Accessibility claims after device evaluation"
+  ],
+  "support_email": "info@freevia.org",
+  "review_contact_email_draft": "info@freevia.org"
+}

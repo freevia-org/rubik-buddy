@@ -7,7 +7,7 @@ Last reviewed 19 October 2026. Rubik Buddy is published by **Freevia**. Question
 
 Rubik Buddy uses your camera to read the colours of a Rubik's Cube. Camera frames are
 processed on your device and are never saved, uploaded or shared. The app has no account,
-no ads, no analytics and no crash reporting. The Android app has no internet permission; the iOS app makes no network requests. Freevia does not
+no ads, no analytics and no crash reporting. The Android app has no internet permission; the iOS scanning and solving features make no network requests. Policy and support links open your browser; those websites have their own privacy practices. Freevia does not
 receive any data from the app.
 
 ## Camera

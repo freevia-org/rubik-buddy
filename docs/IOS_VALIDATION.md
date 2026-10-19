@@ -1,5 +1,21 @@
 # iOS readiness validation — 19 October 2026
 
+This table records the baseline port validation before App Store preparation.
+The publishing changes add an in-app privacy/support dialog, store metadata,
+screenshot validation and distribution export scripts; current archive version,
+source revision and validation are recorded in `build/ios-device/` and the
+packaged App Store kit. The camera/solver algorithms are unchanged by this work.
+
+App Store preparation checks: the optimized Release simulator app built and
+launched on iPhone 17 Pro Max and iPad Pro 13-inch (M5), both iOS 27.0. Native
+home-screen captures were visually inspected at 1320×2868 and 2064×2752.
+The new privacy/support entry is visible on both. Shared Android Kotlin compilation
+also passed. Store metadata, images, icon and local distribution export options
+pass `scripts/validate-app-store.py`. Signing preflight correctly stops when no
+team is configured; Apple distribution signing/export remains untested without
+the account. The privacy dialog's source compiles on both platforms; its link
+navigation and full accessibility behavior still need interactive device review.
+
 Local toolchain: Xcode 27.1 (27A9275), JDK 21, Kotlin 2.3.20, CMake 4.4.4.
 
 | Check | Result |
@@ -23,7 +39,7 @@ are actually executed rather than reported as NO-SOURCE.
 
 The archive validator checks device platform/architecture, version, icon catalog,
 camera permission text, display-timing key, privacy manifest, third-party notices,
-and application dSYM. Each exported archive has a validation JSON, build/source
+and a matching application dSYM UUID. Each exported archive has a validation JSON, build/source
 metadata, and SHA-256 checksum under `build/ios-device/`.
 
 The simulator scan/solve UI was exercised through six sample faces, native result

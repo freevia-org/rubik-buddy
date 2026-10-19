@@ -1,0 +1,13 @@
+Rubik Buddy scans and solves standard six-color 3x3 cubes. No login, purchase, subscription, server, or special credentials are required. All scanning and solving run on device.
+
+For a full camera review, use a standard 3x3 cube (white, yellow, red, orange, blue, green) in even lighting:
+1. Launch the app and select Scan Cube. Allow camera access.
+2. Hold the cube in the orientation illustrated by the 3D guide. Align the center color with the requested face and wait for alignment.
+3. Check the detected colors. Tap a non-center tile to correct it if needed, then confirm the face. Repeat for all six faces using the indicated rotations.
+4. Follow the animated solution using Next. Previous and Replay are available. Restart begins another scan.
+
+Privacy & support is available on the home screen. Camera images are never stored or uploaded. The app works offline. If camera access was denied, use the permission screen to open Settings and enable Camera, then return.
+
+Simulator builds offer an explicitly labeled sample cube because Simulator has no camera. The sample control is not available on physical devices and is not a substitute for real camera testing.
+
+Before submitting these notes, attach a video of the final build scanning and solving a real cube on an iPhone or iPad if requested by App Review. Do not claim this physical-device test has occurred until it has.

@@ -35,6 +35,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
+      - name: Validate App Store metadata and screenshot assets
+        run: python3 scripts/validate-app-store.py
+
       - name: Build simulator app and native solver
         run: ./scripts/build-ios.sh
 
@@ -60,6 +63,9 @@ jobs:
       - name: Archive Release for iPhone (no signing credentials required)
         run: ./scripts/archive-ios.sh
 
+      - name: Package App Store preparation kit
+        run: ./scripts/package-app-store.sh
+
       - name: Package simulator app
         run: ditto -c -k --keepParent build/xcode-derived-data/Build/Products/Debug-iphonesimulator/iosApp.app build/RubikBuddy-simulator.zip
 
@@ -68,6 +74,8 @@ jobs:
           name: ios-builds-and-test-results
           path: |
             build/RubikBuddy-simulator.zip
+            build/RubikBuddy-AppStore-Preparation.zip
+            build/RubikBuddy-AppStore-Preparation.zip.sha256
             build/ios-device/*.zip
             build/ios-device/*.sha256
             build/ios-device/BUILD-INFO-*.txt

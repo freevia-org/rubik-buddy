@@ -1,0 +1,19 @@
+Solve your standard 3x3 cube with camera scanning and animated, step-by-step moves.
+
+SCAN SIX FACES
+Hold the cube as shown and scan each face in turn. The app guides you through the rotations so the faces line up correctly.
+
+CHECK THE COLORS
+Lighting can make similar colors look alike. Check each scan and tap a sticker to correct its color before solving. Rubik Buddy checks the cube state and reports impossible scans.
+
+FOLLOW EACH MOVE
+Watch the solution on a draggable 3D cube. Step forward, go back, or replay a move at your own pace.
+
+PRIVATE AND OFFLINE
+Camera frames are processed on your device and discarded after analysis. No photos or videos are saved or uploaded. No account, ads, analytics, or tracking. Scanning and solving work offline.
+
+Designed for a standard 3x3 cube with white, yellow, red, orange, blue, and green stickers. Use good, even lighting for the best scan results. A physical cube and camera access are needed for scanning.
+
+Rubik Buddy is an independent, open-source app. It is not affiliated with or endorsed by the owner of the Rubik's Cube trademark.
+
+Source code: https://github.com/freevia-org/rubik-buddy
