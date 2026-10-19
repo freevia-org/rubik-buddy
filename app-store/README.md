@@ -38,18 +38,25 @@ reserved or verified until the account exists.
 2. Register `org.freevia.rubikbuddy` (or an available unique ID). Create the iOS app
    in App Store Connect using SKU `rubik-buddy-ios`, English (U.S.), version 1.0.0.
    If changing the ID, update `app.json` and the Xcode project consistently.
-3. Set your team and export an App Store distribution IPA locally:
+3. Create an Apple Distribution certificate (with its private key on this Mac)
+   and an [App Store provisioning profile](https://developer.apple.com/help/account/provisioning-profiles/create-an-app-store-provisioning-profile)
+   for the registered bundle ID. Download/install the profile in Xcode. App Store
+   profiles do not require registered device UDIDs. Then export locally:
 
    ```bash
-   IOS_DEVELOPMENT_TEAM=YOURTEAMID IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
+   IOS_DEVELOPMENT_TEAM=YOURTEAMID \
+   IOS_APP_STORE_PROFILE='Rubik Buddy App Store' \
+   IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
    ```
 
-   Choose a build number higher than every previously uploaded build. The script
-   uses `app-store-connect` export, automatic signing and local `export` destination.
+   Set `IOS_APP_STORE_PROFILE` to the installed profile's name or UUID. Choose a
+   build number higher than every previously uploaded build. The script uses manual
+   distribution signing and `app-store-connect` export with local `export` destination.
    It does **not** upload or release. Output is in `build/ios-device/app-store-ipa/`.
-   Xcode may need to create/download distribution signing assets; no device UDID
-   is required for App Store/TestFlight distribution. This path cannot be fully
-   exercised without the account. A personal/free team does not provide App Store distribution.
+   Development/device signing remains automatic under `--signed`. The App Store
+   path uses a distribution profile so a team without registered iPhones can prepare
+   the upload. It cannot be exercised without the paid account, certificate and
+   profile. A personal/free team does not provide App Store distribution.
 4. In Xcode Organizer, select the new archive and use Validate App, then Distribute
    App → App Store Connect. Alternatively upload the exported IPA in Transporter.
    Wait for Apple's build processing and address all validation/privacy warnings.

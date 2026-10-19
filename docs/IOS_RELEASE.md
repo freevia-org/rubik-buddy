@@ -71,10 +71,12 @@ The complete submission kit is in [`app-store/README.md`](../app-store/README.md
 with copy-ready metadata, questionnaire drafts, review notes and native simulator
 screenshots. Validate it with `python3 scripts/validate-app-store.py`.
 
-Once a paid developer team is available, export locally for App Store Connect:
+Once a paid developer team, local Apple Distribution certificate and installed
+App Store provisioning profile are available, export locally for App Store Connect:
 
 ```bash
-IOS_DEVELOPMENT_TEAM=YOURTEAMID IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
+IOS_DEVELOPMENT_TEAM=YOURTEAMID IOS_APP_STORE_PROFILE='Rubik Buddy App Store' \
+IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
 ```
 
 Choose a build number higher than previously uploaded builds. This exports to

@@ -22,6 +22,7 @@ assert set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);', project)) == {app
 with (root / 'iosApp/ExportOptions-AppStore.plist').open('rb') as stream:
     export = plistlib.load(stream)
 assert export['method'] == 'app-store-connect'
+assert export['signingStyle'] == 'manual' and export['signingCertificate'] == 'Apple Distribution'
 assert export['destination'] == 'export', 'Preparation must not upload automatically'
 assert export['manageAppVersionAndBuildNumber'] is False
 with (root / 'iosApp/iosApp/Info.plist').open('rb') as stream:

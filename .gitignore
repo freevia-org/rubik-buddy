@@ -90,6 +90,7 @@ firebase-service-account*.json
 *.keystore
 *.p12
 *.pfx
+*.p8
 *.pem
 *.key
 .env

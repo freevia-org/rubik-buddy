@@ -11,7 +11,7 @@ case "${1:-}" in
         echo 'Usage: ./scripts/archive-ios.sh [--signed|--app-store]'
         echo 'Unsigned output: build/ios-device/RubikBuddy-unsigned.xcarchive.zip'
         echo 'Signed export requires IOS_DEVELOPMENT_TEAM, a signing identity and provisioning.'
-        echo '--app-store requires a paid team and App Store distribution provisioning; exports locally without uploading.'
+        echo '--app-store requires a paid team, local Apple Distribution identity, and IOS_APP_STORE_PROFILE (installed profile name/UUID).'
         echo 'Optional: IOS_BUNDLE_ID, IOS_BUILD_NUMBER, IOS_MARKETING_VERSION. No credentials are stored in the repository.'
         exit 0 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
@@ -28,17 +28,22 @@ label=unsigned
 if $signed; then
     [ -n "${IOS_DEVELOPMENT_TEAM:-}" ] || { echo 'Set IOS_DEVELOPMENT_TEAM to your Apple team ID.' >&2; exit 1; }
     [[ "$IOS_DEVELOPMENT_TEAM" =~ ^[A-Z0-9]{10}$ ]] || { echo 'Expected a 10-character Apple team ID.' >&2; exit 1; }
-    if ! $store; then
+    settings+=("DEVELOPMENT_TEAM=$IOS_DEVELOPMENT_TEAM")
+    if $store; then
+        [ -n "${IOS_APP_STORE_PROFILE:-}" ] || { echo 'Set IOS_APP_STORE_PROFILE to your installed App Store profile name or UUID.' >&2; exit 1; }
+        security find-identity -v -p codesigning | /usr/bin/grep -q '"Apple Distribution:' || {
+            echo 'Install an Apple Distribution certificate with its private key in Keychain.' >&2
+            exit 1
+        }
+        settings+=(CODE_SIGN_STYLE=Manual "CODE_SIGN_IDENTITY=Apple Distribution" "PROVISIONING_PROFILE_SPECIFIER=$IOS_APP_STORE_PROFILE")
+        label=app-store
+    else
         security find-identity -v -p codesigning | /usr/bin/grep -q '"Apple Development:' || {
             echo 'No Apple Development signing identity. Add your Apple account in Xcode and create a development certificate.' >&2
             exit 1
         }
-    fi
-    settings+=("DEVELOPMENT_TEAM=$IOS_DEVELOPMENT_TEAM" CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates)
-    label=development
-    if $store; then
-        label=app-store
-        settings+=("CODE_SIGN_IDENTITY=Apple Distribution")
+        settings+=(CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates)
+        label=development
     fi
 else
     settings+=(CODE_SIGNING_ALLOWED=NO)
@@ -61,9 +66,29 @@ if $signed; then
     trap 'rm -f "$options"' EXIT
     if $store; then cp iosApp/ExportOptions-AppStore.plist "$options";
     else cp iosApp/ExportOptions.plist "$options"; fi
-    /usr/libexec/PlistBuddy -c "Add :teamID string $IOS_DEVELOPMENT_TEAM" "$options"
-    xcodebuild -exportArchive -archivePath "$archive" -exportPath "$output/$label-ipa" \
-        -exportOptionsPlist "$options" -allowProvisioningUpdates
+    python3 - "$archive" "$options" "$IOS_DEVELOPMENT_TEAM" "${IOS_APP_STORE_PROFILE:-}" <<'EXPORT_PY'
+import plistlib, sys
+from pathlib import Path
+archive, options, team, profile = sys.argv[1:]
+options = Path(options)
+with options.open('rb') as stream:
+    export = plistlib.load(stream)
+export['teamID'] = team
+if export['method'] == 'app-store-connect':
+    with (Path(archive) / 'Info.plist').open('rb') as stream:
+        metadata = plistlib.load(stream)
+    app = Path(archive) / 'Products' / metadata['ApplicationProperties']['ApplicationPath']
+    with (app / 'Info.plist').open('rb') as stream:
+        bundle = plistlib.load(stream)['CFBundleIdentifier']
+    export['provisioningProfiles'] = {bundle: profile}
+with options.open('wb') as stream:
+    plistlib.dump(export, stream)
+EXPORT_PY
+    if $store; then
+        xcodebuild -exportArchive -archivePath "$archive" -exportPath "$output/$label-ipa" -exportOptionsPlist "$options"
+    else
+        xcodebuild -exportArchive -archivePath "$archive" -exportPath "$output/$label-ipa" -exportOptionsPlist "$options" -allowProvisioningUpdates
+    fi
 fi
 
 ditto -c -k --keepParent "$archive" "$archive.zip"

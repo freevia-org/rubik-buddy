@@ -26,6 +26,11 @@ cp NOTICE "$output/ThirdPartyNotices.txt"
 cp iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/AppIcon.png "$output/AppIcon-1024.png"
 cp docs/IOS_RELEASE.md docs/IOS_VALIDATION.md docs/IOS_LICENSES.md docs/privacy-policy.md "$output/docs/"
 python3 scripts/validate-app-store.py > "$output/LOCAL-CHECKS.txt"
+{
+    echo "Preparation source: $(git rev-parse HEAD)"
+    echo "Preparation state: $(git describe --always --dirty)"
+    echo 'Archive source is recorded separately in BUILD-INFO-unsigned.txt.'
+} > "$output/PREPARATION-INFO.txt"
 (cd "$output" && find . -type f ! -name SHA256SUMS -exec shasum -a 256 {} \; > SHA256SUMS)
 ditto -c -k --keepParent "$output" "$root/build/RubikBuddy-AppStore-Preparation.zip"
 (cd build && shasum -a 256 RubikBuddy-AppStore-Preparation.zip > RubikBuddy-AppStore-Preparation.zip.sha256)
