@@ -14,11 +14,9 @@ no ads, no analytics, and no image ever leaves the device.
 [Support](.github/SUPPORT.md) ·
 [Security](SECURITY.md)
 
-**Google Play — Android:** [Join the internal test with an invited Google account](https://play.google.com/apps/internaltest/4701679095877744035).
-Android 0.1.0 (build 69) is available to invited testers with Android 9+
-and a camera. The production release is in Google review; the
-[public Play listing](https://play.google.com/store/apps/details?id=org.freevia.rubikbuddy)
-may not open until approval. No GitHub APK release has been published.
+**Google Play — Android:** [Get Rubik Buddy on Google Play](https://play.google.com/store/apps/details?id=org.freevia.rubikbuddy).
+Version 0.1.0 is publicly available in supported regions and needs an Android 9+ phone with
+a camera. No separate GitHub APK release has been published.
 
 **iOS 1.0.0:** prepared for App Store signing and physical-device acceptance.
 See the [App Store submission kit](app-store/README.md). It is not yet available
