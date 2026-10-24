@@ -3,21 +3,38 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore: &android-paths-ignore
+      # iOS-only sources, scripts and App Store material
+      - 'iosApp/**'
+      - 'app-store/**'
+      - 'scripts/**'
+      - 'composeApp/src/iosMain/**'
+      - 'rubik-*/src/iosMain/**'
+      - 'rubik-*/src/iosTest/**'
+      - 'rubik-solver/build-ios-framework.sh'
+      # Documentation and repository metadata
+      - '**/*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/workflows/ios.yml'
   pull_request:
+    paths-ignore: *android-paths-ignore
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# PRs: a new push cancels the superseded run. main: every commit gets its own complete run.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   android:
     name: Android build and unit tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -36,16 +53,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
 
       # No secrets are needed: google-services.json and signing keys are optional.
-      - name: Make the Gradle wrapper executable
-        run: chmod +x gradlew
-
+      # Unit tests run first so a failing test is reported before the slower packaging step.
       - name: Unit tests
         run: ./gradlew :rubik-model:jvmTest :rubik-vision:testAndroidHostTest :rubik-solver:testAndroidHostTest --console=plain
 
       - name: Build debug APK and release bundle
         run: ./gradlew :composeApp:assembleDebug :composeApp:bundleRelease --console=plain
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: rubik-buddy-debug-apk
           path: composeApp/build/outputs/apk/debug/*.apk

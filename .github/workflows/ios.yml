@@ -3,26 +3,56 @@ name: iOS
 on:
   push:
     branches: [main]
+    paths: &ios-paths
+      - '**'
+      # Android-only sources and Play Store material
+      - '!composeApp/src/androidMain/**'
+      - '!rubik-*/src/androidMain/**'
+      - '!rubik-*/src/androidUnitTest/**'
+      - '!assets/**'
+      # Documentation, except the files packaged into the App Store kit
+      - '!**/*.md'
+      - '!docs/**'
+      - '!LICENSE'
+      - '!.github/**'
+      - 'docs/IOS_RELEASE.md'
+      - 'docs/IOS_VALIDATION.md'
+      - 'docs/IOS_LICENSES.md'
+      - 'docs/privacy-policy.md'
+      - 'app-store/**'
+      - '.github/workflows/ios.yml'
   pull_request:
+    paths: *ios-paths
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# PRs: a new push cancels the superseded run. main: every commit gets its own complete run.
 concurrency:
-  group: ios-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Pinned toolchain: macos-26 image with an explicitly selected Xcode.
+  DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
 
 jobs:
-  build:
-    name: Simulator tests and unsigned iPhone archive
-    runs-on: macos-latest
-    timeout-minutes: 45
+  simulator:
+    name: Simulator app and native tests
+    runs-on: macos-26
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-          fetch-depth: 0
+          fetch-depth: 1   # the simulator build does not use the commit count
+
+      - name: Validate App Store metadata and screenshot assets
+        run: python3 scripts/validate-app-store.py
+
+      - name: Show selected Xcode
+        run: xcodebuild -version
 
       - uses: actions/setup-java@v6
         with:
@@ -35,8 +65,13 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v6
 
-      - name: Validate App Store metadata and screenshot assets
-        run: python3 scripts/validate-app-store.py
+      # Kotlin/Native toolchain, LLVM and its per-target compiler caches (not covered by setup-gradle).
+      - name: Cache Kotlin/Native toolchain
+        uses: actions/cache@v6
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Build simulator app and native solver
         run: ./scripts/build-ios.sh
@@ -60,25 +95,66 @@ jobs:
           set -o pipefail
           ./scripts/test-ios-native.sh 2>&1 | tee build/ios-native-tests.log
 
+      - name: Package simulator app
+        run: ditto -c -k --keepParent build/xcode-derived-data/Build/Products/Debug-iphonesimulator/iosApp.app build/RubikBuddy-simulator.zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ios-simulator-and-test-results
+          path: |
+            build/RubikBuddy-simulator.zip
+            build/ios-native-tests.log
+          if-no-files-found: error
+
+  archive:
+    name: Unsigned iPhone archive and App Store kit
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0   # the build number is derived from the commit count
+
+      - name: Validate App Store metadata and screenshot assets
+        run: python3 scripts/validate-app-store.py
+
+      - name: Show selected Xcode
+        run: xcodebuild -version
+
+      - uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: temurin
+
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # Restore only: the simulator job owns saving this cache.
+      - name: Restore Kotlin/Native toolchain
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Archive Release for iPhone (no signing credentials required)
         run: ./scripts/archive-ios.sh
 
       - name: Package App Store preparation kit
         run: ./scripts/package-app-store.sh
 
-      - name: Package simulator app
-        run: ditto -c -k --keepParent build/xcode-derived-data/Build/Products/Debug-iphonesimulator/iosApp.app build/RubikBuddy-simulator.zip
-
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
-          name: ios-builds-and-test-results
+          name: ios-archive-and-app-store-kit
           path: |
-            build/RubikBuddy-simulator.zip
             build/RubikBuddy-AppStore-Preparation.zip
             build/RubikBuddy-AppStore-Preparation.zip.sha256
             build/ios-device/*.zip
             build/ios-device/*.sha256
             build/ios-device/BUILD-INFO-*.txt
             build/ios-device/VALIDATION-*.json
-            build/ios-native-tests.log
           if-no-files-found: error
