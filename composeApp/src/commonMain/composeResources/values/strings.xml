@@ -106,7 +106,9 @@
     <string name="progress_solved">Solved!</string>
     <!-- %1$d = current move number, %2$d = total moves -->
     <string name="progress_solving_move">Solving · Move %1$d of %2$d</string>
-    <string name="privacy_and_support">Privacy &amp; support</string>
+    <string name="privacy_and_support">About, privacy &amp; support</string>
+    <string name="about_section_title">About</string>
+    <string name="about_version">Version %1$s (build %2$s)</string>
     <string name="privacy_title">Your cube, your privacy</string>
     <string name="privacy_body">Rubik Buddy processes camera frames on your device to read cube colors. Frames are discarded after analysis; photos and videos are never saved or uploaded.
 

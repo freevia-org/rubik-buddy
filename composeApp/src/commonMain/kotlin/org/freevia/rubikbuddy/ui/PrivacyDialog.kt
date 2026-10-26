@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import org.freevia.rubikbuddy.platformAppVersion
+import org.freevia.rubikbuddy.platformBuildNumber
 import org.freevia.rubikbuddy.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 
@@ -20,6 +22,15 @@ internal fun PrivacyDialog(onDismiss: () -> Unit) {
         text = {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                 Text(stringResource(Res.string.privacy_body))
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(Modifier.height(12.dp))
+                Text(stringResource(Res.string.about_section_title), style = MaterialTheme.typography.titleSmall)
+                Text(
+                    stringResource(Res.string.about_version, platformAppVersion, platformBuildNumber),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 TextButton(onClick = { uriHandler.openUri("https://github.com/freevia-org/rubik-buddy/blob/main/docs/privacy-policy.md") }) {
                     Text(stringResource(Res.string.privacy_policy_link))
                 }
