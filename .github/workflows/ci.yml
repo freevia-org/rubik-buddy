@@ -14,7 +14,7 @@ concurrency:
 jobs:
   android:
     name: Android build and unit tests
-    runs-on: ubuntu-24.04
+    runs-on: rubik-buddy-i5-linux
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
