@@ -14,7 +14,7 @@ concurrency:
 jobs:
   android:
     name: Android build and unit tests
-    runs-on: ubuntu-24.04
+    runs-on: rubik-buddy-i5-linux
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
@@ -35,11 +35,12 @@ jobs:
 
       # No secrets are needed: google-services.json and signing keys are optional.
       # Unit tests run first so a failing test is reported before the slower packaging step.
+      # Keep Gradle's worker pool small on the shared Docker runner.
       - name: Unit tests
-        run: ./gradlew :rubik-model:jvmTest :rubik-vision:testAndroidHostTest :rubik-solver:testAndroidHostTest --console=plain
+        run: ./gradlew :rubik-model:jvmTest :rubik-vision:testAndroidHostTest :rubik-solver:testAndroidHostTest --max-workers=2 --no-parallel --console=plain
 
       - name: Build debug APK and release bundle
-        run: ./gradlew :composeApp:assembleDebug :composeApp:bundleRelease --console=plain
+        run: ./gradlew :composeApp:assembleDebug :composeApp:bundleRelease --max-workers=2 --no-parallel --console=plain
 
       - uses: actions/upload-artifact@v7
         with:
