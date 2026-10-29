@@ -1,7 +1,11 @@
 # App Store submission kit
 
-Prepared 19 October 2026 for Rubik Buddy 1.0.0. No Apple developer account or
-physical iPhone/iPad was available. This kit has not been submitted to Apple.
+This is the original preparation kit for Rubik Buddy 1.0.0, written on 19 October
+2026 before Apple account setup. It records what was ready locally at that time;
+it is not a current App Store Connect, signing, or review-status record. Verify
+the existing app record, selected build, listing fields, and review state in App
+Store Connect before making any changes. Do not create a second app record from
+the historical steps below.
 
 ## Ready locally
 
@@ -27,11 +31,16 @@ archive, listing assets, validation, icon and checksums. It is not an IPA.
 Run the commands above from the repository checkout; the ZIP is a handoff kit,
 not a complete source checkout.
 
-The metadata is plain text, ready to paste into App Store Connect. `app.json` is a
-handoff file, not an Apple API payload. Name and bundle-ID availability cannot be
-reserved or verified until the account exists.
+The metadata is plain-text source material for a future editable listing. Check
+it against the selected build and current App Store Connect fields before use.
+`app.json` is a historical handoff file, not an Apple API payload or a source of
+current account state.
 
-## When the account is available
+## Original account setup checklist (historical)
+
+These steps describe first-time setup as planned on 19 October. Do not repeat
+account enrollment, app registration, or submission for an existing record. The
+release owner must reconcile any remaining steps with the current Apple state.
 
 1. Enroll in the paid [Apple Developer Program](https://developer.apple.com/programs/enroll/).
    Add it to Xcode Settings → Accounts. Complete agreements and legal identity.
@@ -79,12 +88,14 @@ reserved or verified until the account exists.
 9. Replace screenshots if the signed UI differs. Select manual release, submit for
    review only after physical-camera acceptance, and release after approval.
 
-## Current blockers
+## Blockers recorded at preparation time
 
-Apple account/signing/App Store Connect record, final owner questionnaires and
-contacts, Apple server-side validation, and physical camera/permission/lifecycle
-acceptance. Local archive checks and simulator screenshots do not certify App
-Store approval or camera accuracy. No installable distribution IPA exists yet.
+The original packet had no Apple account, signing, or App Store Connect record.
+Final owner questionnaires and contacts, Apple server-side validation, and
+physical camera/permission/lifecycle acceptance were still open. Local archive
+checks and simulator screenshots do not certify App Store approval or camera
+accuracy. The unsigned handoff ZIP described above was not an IPA; verify the
+current signed-artifact inventory separately.
 
 ## Apple references
 
