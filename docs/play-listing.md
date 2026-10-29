@@ -28,42 +28,24 @@ Scan a 3×3 cube with your camera and solve it offline with a 3D move guide.
 ## Full description (max 4000 characters)
 
 ```
-Rubik Buddy helps you solve a standard 3x3 Rubik's Cube. Point your phone camera at each
-face of the cube, check the colors it read, and follow a short sequence of moves shown on
-an animated 3D cube until the cube is solved.
+Turn a scrambled 3×3 cube into a clear sequence of moves. Rubik Buddy guides you through scanning each face, checking the colors, and following a solution on an interactive 3D cube.
 
-How it works
-- Scan: hold the cube as shown and scan the six faces one after another. The app guides
-  you through each rotation.
-- Check: if the camera misread a sticker (lighting can make orange, red, yellow and white
-  look alike), tap the tile and pick the correct color.
-- Solve: Rubik Buddy checks that the cube you entered is possible and computes a
-  solution with the Kociemba two-phase algorithm. Step through the moves one at a time,
-  replay them, or restart.
+SCAN THE CUBE
+• Follow the on-screen rotation guide to scan all six faces with your camera.
+• Tap any sticker to correct a color the camera missed. Even lighting helps distinguish similar colors.
+• The app checks whether the entered cube is possible before solving it.
 
-Features
-- Camera-based scan of all six faces
-- Tap-to-correct for any tile the camera got wrong
-- Detects impossible scans (wrong color counts, twisted pieces) instead of giving a wrong answer
-- Step-by-step move instructions with an animated, draggable 3D cube
-- Works fully offline
+FOLLOW THE SOLUTION
+• Read one move at a time, with the current turn shown on an animated, draggable 3D cube.
+• Step back, replay moves or restart the guide whenever you need.
+• Works fully offline.
 
-Privacy
-Rubik Buddy needs only the camera permission, and only to read the colors of your cube.
-Camera images are processed on your device while you scan and are never stored or sent
-anywhere. There is no account, no ads, no analytics and no tracking.
+Rubik Buddy is designed for a standard 3×3 cube with the usual six colors. Camera images are processed on your device during scanning and are not stored or sent anywhere. There is no account, ads, analytics or tracking.
 
-Notes
-- Designed for the standard 3x3 cube with the usual six colors (white, yellow, red,
-  orange, blue, green).
-- Color detection depends on lighting. Good, even light gives the best results.
-- Rubik's Cube is a trademark of its owner. Rubik Buddy is an independent app and is not
-  affiliated with or endorsed by the trademark owner.
-
-Open source under the MIT License: https://github.com/freevia-org/rubik-buddy
+Rubik's Cube is a trademark of its owner. Rubik Buddy is independent and is not affiliated with or endorsed by that owner. The app is open source under the MIT License: https://github.com/freevia-org/rubik-buddy
 ```
 
-The text above is roughly 1,700 characters, well under the limit.
+This copy matches the current public English (US) Play listing and is below the limit.
 
 ## Content rating (IARC questionnaire)
 
