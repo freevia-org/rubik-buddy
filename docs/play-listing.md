@@ -20,10 +20,10 @@ Copy and answers to paste into Play Console. Keep them consistent with
 ## Short description (max 80 characters)
 
 ```
-Scan your 3x3 Rubik's Cube with the camera and get step-by-step solving moves.
+Scan a 3×3 cube with your camera and solve it offline with a 3D move guide.
 ```
 
-(77 characters.)
+(75 characters.)
 
 ## Full description (max 4000 characters)
 
