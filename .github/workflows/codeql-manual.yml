@@ -27,21 +27,61 @@ jobs:
             build-mode: none
           - language: java-kotlin
             runner: rubik-buddy-i5-linux
-            build-mode: none
+            build-mode: manual
           - language: python
             runner: rubik-buddy-i5-linux
             build-mode: none
           - language: swift
             runner: rubik-buddy-macmini
-            build-mode: autobuild
+            build-mode: manual
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Set up Java 21
+        if: matrix.language == 'java-kotlin' || matrix.language == 'swift'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        if: matrix.language == 'java-kotlin' || matrix.language == 'swift'
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+
+      - name: Set up Gradle
+        if: matrix.language == 'java-kotlin' || matrix.language == 'swift'
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+
+      # Kotlin extraction requires an actual JVM compilation inside CodeQL tracing.
+      # Kotlin/Native-only sources are outside this JVM extraction.
+      # Bypass reusable outputs and keep the compiler in the traced Gradle process.
+      - name: Build Android and JVM Kotlin for CodeQL
+        if: matrix.language == 'java-kotlin'
+        run: >-
+          ./gradlew :composeApp:compileDebugKotlinAndroid :rubik-model:compileKotlinJvm
+          --no-daemon --no-build-cache --no-configuration-cache --rerun-tasks
+          --max-workers=2 --no-parallel --console=plain
+          -Pkotlin.compiler.execution.strategy=in-process
+
+      - name: Build unsigned iOS simulator app for CodeQL
+        if: matrix.language == 'swift'
+        env:
+          IOS_CONFIGURATION: Debug
+          IOS_DERIVED_DATA: ${{ runner.temp }}/codeql-ios-${{ github.run_id }}-${{ github.run_attempt }}
+          GRADLE_OPTS: -Dorg.gradle.workers.max=2 -Dorg.gradle.parallel=false
+        run: ./scripts/build-ios.sh
+
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
         with:
