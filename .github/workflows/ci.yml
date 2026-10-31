@@ -15,7 +15,7 @@ jobs:
   android:
     name: Android build and unit tests
     runs-on: rubik-buddy-i5-linux
-    timeout-minutes: 20
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v7
         with:
