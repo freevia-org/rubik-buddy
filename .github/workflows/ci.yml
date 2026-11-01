@@ -1,25 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-    paths-ignore: &android-paths-ignore
-      # iOS-only sources, scripts and App Store material
-      - 'iosApp/**'
-      - 'app-store/**'
-      - 'scripts/**'
-      - 'composeApp/src/iosMain/**'
-      - 'rubik-*/src/iosMain/**'
-      - 'rubik-*/src/iosTest/**'
-      - 'rubik-solver/build-ios-framework.sh'
-      # Documentation and repository metadata
-      - '**/*.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/ios.yml'
-  pull_request:
-    paths-ignore: *android-paths-ignore
   workflow_dispatch:
 
 permissions:

@@ -1,28 +1,6 @@
 name: iOS
 
 on:
-  push:
-    branches: [main]
-    paths: &ios-paths
-      - '**'
-      # Android-only sources and Play Store material
-      - '!composeApp/src/androidMain/**'
-      - '!rubik-*/src/androidMain/**'
-      - '!rubik-*/src/androidUnitTest/**'
-      - '!assets/**'
-      # Documentation, except the files packaged into the App Store kit
-      - '!**/*.md'
-      - '!docs/**'
-      - '!LICENSE'
-      - '!.github/**'
-      - 'docs/IOS_RELEASE.md'
-      - 'docs/IOS_VALIDATION.md'
-      - 'docs/IOS_LICENSES.md'
-      - 'docs/privacy-policy.md'
-      - 'app-store/**'
-      - '.github/workflows/ios.yml'
-  pull_request:
-    paths: *ios-paths
   workflow_dispatch:
 
 permissions:
