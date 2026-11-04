@@ -10,6 +10,39 @@ plugins {
     alias(libs.plugins.firebase.appdistribution) apply false
 }
 
+private fun playVersionCode(versionName: String, buildNumber: Int): Int {
+    val parts = Regex("^(\\d+)\\.(\\d+)\\.(\\d+)$").matchEntire(versionName)
+        ?.groupValues?.drop(1)?.map { it.toLong() }
+        ?: throw GradleException("Release version must be MAJOR.MINOR.CODE: $versionName")
+    val (major, minor, code) = parts
+    require(major in 0L..20L && minor in 0L..99L && code in 0L..999L && buildNumber in 1..999) {
+        "Release version components exceed the supported Play versionCode range"
+    }
+    val value = major * 100_000_000L + minor * 1_000_000L + code * 1_000L + buildNumber
+    require(value <= 2_100_000_000L) { "Derived Play versionCode exceeds Google's limit" }
+    return value.toInt()
+}
+
+private data class ReleaseIdentity(val canonical: String, val marketingVersion: String, val build: Int, val playVersionCode: Int)
+
+private fun releaseIdentity(): ReleaseIdentity {
+    val manifest = rootProject.file("release-version.json")
+    require(manifest.isFile) { "Missing canonical release-version.json" }
+    val canonical = Regex("\"canonical\"\\s*:\\s*\"([^\"]+)\"")
+        .find(manifest.readText())?.groupValues?.get(1)
+        ?: throw GradleException("release-version.json must contain canonical MAJOR.MINOR.CODE+BUILD")
+    val parts = Regex("^(\\d+)\\.(\\d+)\\.(\\d+)\\+([1-9]\\d{0,2})$").matchEntire(canonical)
+        ?.groupValues?.drop(1)?.map { it.toLong() }
+        ?: throw GradleException("Release version must be MAJOR.MINOR.CODE+BUILD: $canonical")
+    val (major, minor, code, build) = parts
+    require(major in 0L..20L && minor in 0L..99L && code in 0L..999L && build in 1L..999L) {
+        "Release version components exceed the supported Play versionCode range"
+    }
+    val marketingVersion = "$major.$minor.$code"
+    val playCode = playVersionCode(marketingVersion, build.toInt())
+    return ReleaseIdentity(canonical, marketingVersion, build.toInt(), playCode)
+}
+
 // ── Optional Firebase ──────────────────────────────────────────────────────────
 // The shipped app contains no Firebase SDK (no analytics, no crash reporting). Firebase
 // App Distribution is only a developer upload tool. Contributors and CI do not need it:
@@ -87,14 +120,26 @@ android {
         applicationId = appId
         minSdk = 28
         targetSdk = 36
-        // CI and Play uploads may override with VERSION_CODE; default is the commit count.
-        versionCode = System.getenv("VERSION_CODE")?.toIntOrNull()
-            ?: runCatching {
-                providers.exec {
-                    commandLine("git", "rev-list", "--count", "HEAD")
-                }.standardOutput.asText.get().trim().toInt()
-            }.getOrDefault(1)
-        versionName = "0.1.0"
+        // One canonical manifest feeds every store. Legacy CI variables are
+        // accepted only as consistency assertions; they cannot allocate versions.
+        val release = releaseIdentity()
+        val releaseName = System.getenv("VERSION_NAME")?.also { supplied ->
+            require(supplied == release.marketingVersion) {
+                "VERSION_NAME is derived from release-version.json; expected ${release.marketingVersion}"
+            }
+        } ?: release.marketingVersion
+        System.getenv("BUILD_NUMBER")?.let { raw ->
+            val supplied = raw.toIntOrNull() ?: throw GradleException("BUILD_NUMBER must match release-version.json")
+            require(supplied == release.build) { "BUILD_NUMBER is derived from release-version.json; expected ${release.build}" }
+        }
+        versionCode = release.playVersionCode.also { derived ->
+            System.getenv("VERSION_CODE")?.toIntOrNull()?.let { supplied ->
+                require(supplied == derived) {
+                    "VERSION_CODE is derived from release-version.json; expected $derived"
+                }
+            }
+        }
+        versionName = releaseName
     }
 
     // Release signing is read from the environment or Gradle properties only. Without

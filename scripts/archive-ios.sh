@@ -12,17 +12,35 @@ case "${1:-}" in
         echo 'Unsigned output: build/ios-device/RubikBuddy-unsigned.xcarchive.zip'
         echo 'Signed export requires IOS_DEVELOPMENT_TEAM, a signing identity and provisioning.'
         echo '--app-store requires a paid team, local Apple Distribution identity, and IOS_APP_STORE_PROFILE (installed profile name/UUID).'
-        echo 'Optional: IOS_BUNDLE_ID, IOS_BUILD_NUMBER, IOS_MARKETING_VERSION. No credentials are stored in the repository.'
+        echo 'Optional: IOS_BUNDLE_ID. Version and build come from release-version.json; legacy version overrides must match it.'
         exit 0 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
 esac
 source "$(dirname "$0")/ios-env.sh"
 source_revision=$(git rev-parse HEAD)
 source_state=$(git describe --always --dirty)
-build_number=${IOS_BUILD_NUMBER:-$(git rev-list --count HEAD)}
-settings=("CURRENT_PROJECT_VERSION=$build_number")
+release_version=$(python3 - "$RUBIK_REPO_ROOT/release-version.json" <<'VERSION_PY'
+import json, re, sys
+from pathlib import Path
+identity = json.loads(Path(sys.argv[1]).read_text())['canonical']
+match = re.fullmatch(r'(\d+)\.(\d+)\.(\d+)\+([1-9]\d{0,2})', identity)
+if not match:
+    raise SystemExit('release-version.json must use MAJOR.MINOR.CODE+BUILD')
+major, minor, code, build = map(int, match.groups())
+if major > 20 or minor > 99 or code > 999 or build > 999:
+    raise SystemExit('Release version components exceed the supported store version range')
+print(f'{major}.{minor}.{code}\t{build}')
+VERSION_PY
+)
+IFS=$'\t' read -r canonical_version build_number <<< "$release_version"
+if [ -n "${IOS_BUILD_NUMBER:-}" ] && [ "$IOS_BUILD_NUMBER" != "$build_number" ]; then
+    echo "IOS_BUILD_NUMBER must match release-version.json ($build_number)." >&2; exit 1
+fi
+if [ -n "${IOS_MARKETING_VERSION:-}" ] && [ "$IOS_MARKETING_VERSION" != "$canonical_version" ]; then
+    echo "IOS_MARKETING_VERSION must match release-version.json ($canonical_version)." >&2; exit 1
+fi
+settings=("CURRENT_PROJECT_VERSION=$build_number" "MARKETING_VERSION=$canonical_version")
 if [ -n "${IOS_BUNDLE_ID:-}" ]; then settings+=("PRODUCT_BUNDLE_IDENTIFIER=$IOS_BUNDLE_ID"); fi
-if [ -n "${IOS_MARKETING_VERSION:-}" ]; then settings+=("MARKETING_VERSION=$IOS_MARKETING_VERSION"); fi
 [[ "$build_number" =~ ^[0-9]+$ ]] || { echo 'IOS_BUILD_NUMBER must be an integer.' >&2; exit 1; }
 label=unsigned
 if $signed; then
@@ -96,7 +114,7 @@ ditto -c -k --keepParent "$archive" "$archive.zip"
     echo "Source: $source_revision"
     echo "Source state: $source_state"
     echo "Build number: $build_number"
-    echo "Marketing version: ${IOS_MARKETING_VERSION:-project default}"
+    echo "Marketing version: $canonical_version"
     xcodebuild -version
     if $signed; then echo "Signed export: $label-ipa/ (not uploaded)";
     else echo 'UNSIGNED: not installable on an iPhone. Use --signed after configuring an Apple development team.'; fi
