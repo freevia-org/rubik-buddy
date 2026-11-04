@@ -1,7 +1,7 @@
 {
   "bundle_id": "org.freevia.rubikbuddy",
   "sku": "rubik-buddy-ios",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "primary_locale": "en-US",
   "primary_category": "Utilities",
   "secondary_category": "Education",

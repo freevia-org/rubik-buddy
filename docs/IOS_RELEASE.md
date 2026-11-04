@@ -19,7 +19,9 @@ For a signed Release archive and exported development IPA:
 IOS_DEVELOPMENT_TEAM=YOURTEAMID ./scripts/archive-ios.sh --signed
 ```
 
-Optional overrides: `IOS_BUNDLE_ID` and `IOS_BUILD_NUMBER`. The development
+Optional overrides: `IOS_BUNDLE_ID`. The canonical release identity in
+`release-version.json` supplies the marketing version and build number; any
+legacy `IOS_BUILD_NUMBER` or `IOS_MARKETING_VERSION` value must match it. The development
 certificate and provisioning profile stay in your Keychain and Xcode account.
 An IPA can only run on devices covered by its provisioning profile. For a
 personal/free team, running directly from Xcode is the supported starting point;
@@ -51,7 +53,7 @@ flow. They cannot establish camera color accuracy on real hardware.
 
 - Display name: Rubik Buddy
 - Bundle identifier: org.freevia.rubikbuddy
-- Version: 1.0.0; script build number defaults to Git commit count
+- Version: the canonical identity in `release-version.json`; this candidate is `1.0.1+73` (Apple short version `1.0.1`, build `73`). Do not allocate the build from Git commit count.
 - Minimum iOS: 15.0; arm64 device and arm64 simulator
 - App icon: opaque 1024×1024 asset catalog, generated from the existing branding
 - Privacy policy: https://github.com/freevia-org/rubik-buddy/blob/main/docs/privacy-policy.md
@@ -76,10 +78,13 @@ App Store provisioning profile are available, export locally for App Store Conne
 
 ```bash
 IOS_DEVELOPMENT_TEAM=YOURTEAMID IOS_APP_STORE_PROFILE='Rubik Buddy App Store' \
-IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
+./scripts/archive-ios.sh --app-store
 ```
 
-Choose a build number higher than previously uploaded builds. This exports to
+The archive uses the marketing version and build from `release-version.json`
+(`1.0.1+73` for this candidate); do not allocate an independent Apple build
+number. Before making a replacement, advance the canonical build in that file
+and recheck it is higher than every uploaded Apple build. This exports to
 `build/ios-device/app-store-ipa/` without uploading. Xcode Organizer or Transporter
 performs the eventual validation/upload. No phone registration is needed for
 App Store/TestFlight signing, but camera acceptance still requires real hardware.

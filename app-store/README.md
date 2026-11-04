@@ -55,7 +55,7 @@ release owner must reconcile any remaining steps with the current Apple state.
    ```bash
    IOS_DEVELOPMENT_TEAM=YOURTEAMID \
    IOS_APP_STORE_PROFILE='Rubik Buddy App Store' \
-   IOS_BUILD_NUMBER=100 ./scripts/archive-ios.sh --app-store
+   ./scripts/archive-ios.sh --app-store
    ```
 
    Set `IOS_APP_STORE_PROFILE` to the installed profile's name or UUID. Choose a
