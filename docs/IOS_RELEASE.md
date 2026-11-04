@@ -53,7 +53,7 @@ flow. They cannot establish camera color accuracy on real hardware.
 
 - Display name: Rubik Buddy
 - Bundle identifier: org.freevia.rubikbuddy
-- Version: the canonical identity in `release-version.json`; this candidate is `1.0.0+73` (Apple short version `1.0.0`, build `73`). Do not allocate the build from Git commit count.
+- Version: the canonical identity in `release-version.json`; this candidate is `1.0.1+73` (Apple short version `1.0.1`, build `73`). Do not allocate the build from Git commit count.
 - Minimum iOS: 15.0; arm64 device and arm64 simulator
 - App icon: opaque 1024×1024 asset catalog, generated from the existing branding
 - Privacy policy: https://github.com/freevia-org/rubik-buddy/blob/main/docs/privacy-policy.md
@@ -82,7 +82,7 @@ IOS_DEVELOPMENT_TEAM=YOURTEAMID IOS_APP_STORE_PROFILE='Rubik Buddy App Store' \
 ```
 
 The archive uses the marketing version and build from `release-version.json`
-(`1.0.0+73` for this candidate); do not allocate an independent Apple build
+(`1.0.1+73` for this candidate); do not allocate an independent Apple build
 number. Before making a replacement, advance the canonical build in that file
 and recheck it is higher than every uploaded Apple build. This exports to
 `build/ios-device/app-store-ipa/` without uploading. Xcode Organizer or Transporter
