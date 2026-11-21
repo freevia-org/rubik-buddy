@@ -73,8 +73,11 @@ Matches `docs/play-data-safety.md`:
   Families policy requirements; the app is not designed specifically for children.
 - Ads: No. News app: No. Government app: No. Financial features: none. Health: none.
 - App access: all functionality is available without login, no special instructions.
-- Permissions: `CAMERA` (core feature). The camera `uses-feature` is required, so the app
-  is only offered on devices with a camera.
+- Permissions: `CAMERA` (core feature), plus AndroidX manifest entries for
+  `ACCESS_NETWORK_STATE` and its signature-protected internal receiver permission; no
+  `INTERNET` permission. The camera hardware feature is required. Portrait orientation is
+  requested by the activity, but the portrait hardware feature is optional so Play does not
+  filter availability by portrait capability.
 
 ## Graphic assets
 

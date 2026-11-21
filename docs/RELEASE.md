@@ -79,7 +79,10 @@ keytool -printcert -jarfile composeApp\build\outputs\bundle\release\composeApp-r
 
 - `.\gradlew.bat :rubik-model:jvmTest :rubik-vision:testAndroidHostTest :rubik-solver:testAndroidHostTest` passes.
 - `.\gradlew.bat lint` shows no errors.
-- The merged manifest requests only `CAMERA` (matches `docs/play-data-safety.md`).
+- The merged manifest requests `CAMERA`, AndroidX `ACCESS_NETWORK_STATE`, and AndroidX's
+  signature-protected internal receiver permission; it has no `INTERNET` permission.
+  The portrait screen feature is optional so Play does not filter devices based on that
+  feature. Confirm these facts against the merged release manifest before submission.
 - The bundle's application id is `org.freevia.rubikbuddy` and the label is "Rubik Buddy".
 - `versionCode` is higher than the last uploaded build.
 - Listing text and graphics: `docs/play-listing.md`, `assets/store/`, `assets/play/screenshots/`.
