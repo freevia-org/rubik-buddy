@@ -6,6 +6,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: '/bin/bash -e "{0}"'
+
 # PRs: a new push cancels the superseded run. main: every commit gets its own complete run.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
