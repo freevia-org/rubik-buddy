@@ -46,7 +46,7 @@ jobs:
             build-mode: none
           - language: swift
             runner: rubik-buddy-macmini
-            hosted-runner: macos-14
+            hosted-runner: macos-15
             build-mode: manual
     steps:
       - name: Checkout repository
