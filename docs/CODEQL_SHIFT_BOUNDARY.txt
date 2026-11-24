@@ -1,0 +1,63 @@
+Issue #19 ownership and local boundary reproduction -- 24 November 2026
+
+Owner account: freevia-org (assigned in GitHub). Native C++ follow-up belongs
+to the RB iOS workstream; RB Release is the Windows/Android release workstream.
+Android CubeSolver uses cs.min2phase.Search (Java), not this C++ dependency.
+
+Dependency pin: db0ee5f431178f2153f9aa60581bd6ca59e89391, unchanged.
+The iOS Kotlin path validates CubeState before invoking the C wrapper, and
+returns immediately for a solved state. The C wrapper itself constructs a
+std::string and calls the solver. Native Search::verify checks length=54,
+maps stickers through centers, checks color counts, constructs cubies, then
+calls CubieCube::check. These layers are not a general guarantee that direct
+mutation of the public cubie arrays is supported.
+
+Local reproduction compiled the pinned C++ sources using Apple Clang,
+-std=c++14 -O1 -fsanitize=undefined -fno-sanitize-recover=undefined.
+No pruning-table initialization or search was required:
+
+1. Search s; s.verify("UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB");
+   UBSan stops at CubieCube.cpp:280: signed left shift of
+   1229782938247303440 by 4 cannot be represented in type long.
+   This is an ordinary supported native-verifier input, not proof that the
+   app's solved-state shortcut invokes the native verifier. The shift-base
+   defect is distinct from the dismissed multiplication alert.
+
+2. CubieCube c; c.edges[0] = -1; c.check();
+   UBSan stops at CubieCube.cpp:97: shift exponent -1 is negative.
+   This demonstrates unsafe direct array mutation, not app-input reachability.
+
+3. A separate focused build used only
+   -fsanitize=shift-exponent,signed-integer-overflow -fno-sanitize-recover=all.
+   The native verifier accepted the solved string, rejected four malformed
+   cases (53/55 characters, all-U, unknown sticker), and processed 1,000
+   deterministic center-preserving balanced shuffles (mt19937 seed 19), all
+   rejected, without diagnostics from these enabled checks. Shift-base
+   checking was deliberately omitted in this focused build; this is NOT a
+   full UBSan pass or exhaustive input-safety proof.
+
+Harness and logs are retained locally in build/security-boundary-audit/.
+Temporary executables were built under /Volumes/MacMini Work/Tmp and removed.
+
+Resolution review: use unsigned arithmetic for intended modular bit shifts
+at line 280, and separately decide/check the supported input contracts before
+shifting values derived from public arrays. A dependency change requires a
+reviewable upstream/fork commit and pin update, not a dirty submodule patch.
+Issue #19 remains an audit/hardening item; no application exploit is established.
+
+Swift fix review and future manual-only validation
+Base: PR #18 head 35c4fca1b63b1dd31c028aa82ab3f14bb56660e2.
+Architecture fix: 3e4e761609dab453d4b41acf955e1dc33c25f68d.
+Review branch: codex/codeql-swift-arm64-check.
+Local checks passed: hardware guard under native arm64 and Rosetta x86_64;
+Bash syntax, actionlint and diff whitespace. ARM64 solver targets unchanged.
+
+Only AFTER review and separate authorization, run codeql-manual.yml explicitly
+on the reviewed exact head with runner=hosted. Compare the Swift pre-init
+RUNNER_ARCH/uname/sysctl diagnostics with those inside ios-env.sh. Confirm
+hw.optional.arm64=1 and inspect sysctl.proc_translated to determine whether
+CodeQL introduces translation. Confirm the unsigned ARM64 simulator build
+finishes under tracing, Swift extracts application source, and its SARIF is
+processed for the expected ref/category. Verify all five language jobs/results.
+If it fails, diagnose that stage without automatically rerunning. No dispatch,
+merge, store operation or automatic trigger is part of this local assessment.
