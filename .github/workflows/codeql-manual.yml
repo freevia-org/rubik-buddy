@@ -71,6 +71,16 @@ jobs:
         if: matrix.language == 'java-kotlin' || matrix.language == 'swift'
         uses: gradle/actions/setup-gradle@v6
 
+      # Compare with ios-env.sh's diagnostics inside the traced build.
+      - name: Report Swift host architecture before tracing
+        if: matrix.language == 'swift'
+        shell: bash
+        run: |
+          printf 'Runner architecture: %s\n' "$RUNNER_ARCH"
+          printf 'Process architecture: %s\n' "$(/usr/bin/uname -m)"
+          printf 'ARM64 hardware capability: %s\n' "$(/usr/sbin/sysctl -n hw.optional.arm64 2>/dev/null || true)"
+          printf 'Rosetta translation: %s\n' "$(/usr/sbin/sysctl -n sysctl.proc_translated 2>/dev/null || true)"
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
