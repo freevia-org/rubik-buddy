@@ -1,0 +1,49 @@
+CodeQL alert #1: permutation-ranking multiplication bounds
+
+Reviewed 24 November 2026 against min2phaseCXX submodule revision
+db0ee5f431178f2153f9aa60581bd6ca59e89391.
+Rule: cpp/integer-multiplication-cast-to-long
+Location: src/CubieCube.cpp:279
+
+getNPerm is private (src/CubieCube.h:187). Its four call sites are:
+- check(), line 121: n = NUMBER_EDGES = 12.
+- getCPerm(), line 409: n = NUMBER_CORNER = 8.
+- getEPerm(), line 424: n = NUMBER_CORNER = 8.
+- getMPerm(), line 439: n = NUMBER_EDGES = 12; result modulo 24.
+Constants are defined in src/info.h:72,77,124. No caller supplies an
+input-dependent n, and no call uses n outside {8,12}.
+
+The flagged expression is:
+    idx = (n - i) * idx + (val >> v & 0xf);
+idx is int32_t, initially zero. Both n and i are promoted to int for
+the multiplication. The uint64_t right operand subsequently promotes the
+addition; that does not protect an already overflowing multiplication.
+Thus the rule identifies a real general C++ hazard, but reachability bounds
+must determine whether it is possible here.
+
+For valid permutations the ranking result is at most n! - 1:
+    n=8: 40,319; n=12: 479,001,599.
+
+A stronger proof does not require valid permutation digits. Whenever the
+shift is defined, (val >> v & 0xf) is between 0 and 15. Define an upper
+bound B_0=0 and, for i=0,...,n-2:
+    P_i = (n-i) * B_i
+    B_(i+1) = P_i + 15.
+Induction bounds every actual idx and multiplication by B_i and P_i.
+All factors are positive and the bounds increase, yielding:
+    n=8:  maximum product 88,680; final bound 88,695.
+    n=12: maximum product 659,320,680; final bound 659,320,695.
+Both are below INT32_MAX = 2,147,483,647, so neither the signed
+multiplication nor the subsequent conversion to int32_t overflows for
+any reachable n. This is an arithmetic proof, not a claim that every
+malformed array has defined shifts or that the entire solver is safe.
+
+Assessment: the multiplication-overflow alert is not reachable at this
+pinned revision and these call sites. No submodule arithmetic change or
+suppression is needed on this evidence. The alert remains open; no GitHub
+dismissal or annotation was submitted. Reassess if the pin, callers,
+constants, visibility, or recurrence changes, particularly if n can reach 13.
+
+Bounds were independently calculated with integer arithmetic; no solver
+build, hosted scan, or exhaustive permutation test was performed for this
+assessment. Swift tracing remains a separate unverified runtime gate.
