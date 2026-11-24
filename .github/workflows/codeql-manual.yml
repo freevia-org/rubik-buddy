@@ -2,6 +2,15 @@ name: Manual CodeQL security scan
 
 on:
   workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Where CodeQL jobs run'
+        type: choice
+        required: true
+        default: local
+        options:
+          - local
+          - hosted
 
 permissions:
   contents: read
@@ -12,8 +21,8 @@ permissions:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: ${{ contains(matrix.runner, '-i5-') && 180 || 120 }}
+    runs-on: ${{ inputs.runner == 'hosted' && matrix.hosted-runner || matrix.runner }}
+    timeout-minutes: ${{ inputs.runner == 'local' && contains(matrix.runner, '-i5-') && 180 || 120 }}
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -21,18 +30,23 @@ jobs:
         include:
           - language: actions
             runner: rubik-buddy-i5-linux
+            hosted-runner: ubuntu-24.04
             build-mode: none
           - language: c-cpp
             runner: rubik-buddy-i5-linux
+            hosted-runner: ubuntu-24.04
             build-mode: none
           - language: java-kotlin
             runner: rubik-buddy-i5-linux
+            hosted-runner: ubuntu-24.04
             build-mode: manual
           - language: python
             runner: rubik-buddy-i5-linux
+            hosted-runner: ubuntu-24.04
             build-mode: none
           - language: swift
             runner: rubik-buddy-macmini
+            hosted-runner: macos-15
             build-mode: manual
     steps:
       - name: Checkout repository
