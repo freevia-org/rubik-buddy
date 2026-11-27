@@ -11,7 +11,7 @@ camerax = "1.6.0"
 junitJupiter = "5.14.3"
 junitPlatform = "1.14.3"
 truth = "1.4.4"
-kotlinxCoroutines = "1.10.2"
+kotlinxCoroutines = "1.11.0"
 firebaseAppDistribution = "5.2.1"
 googleServices = "4.4.4"
 
